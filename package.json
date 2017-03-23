@@ -1,0 +1,33 @@
+{
+  "name": "sham-server",
+  "version": "0.0.1",
+  "description": "Quickly create a mock http service, mock endpoints and assert that they have been called.",
+  "main": "index.js",
+  "scripts": {
+    "precommit": "lint-staged",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dos-j/sham-server.git"
+  },
+  "author": "dos-j",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dos-j/sham-server/issues"
+  },
+  "homepage": "https://github.com/dos-j/sham-server#readme",
+  "dependencies": {
+    "husky": "^0.13.2",
+    "jest": "^19.0.2",
+    "lint-staged": "^3.4.0",
+    "portfinder": "^1.0.13",
+    "prettier": "^0.22.0"
+  },
+  "lint-staged": {
+    "*.js": [
+      "prettier --write",
+      "git add"
+    ]
+  }
+}
