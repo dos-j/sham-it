@@ -1,8 +1,5 @@
-# sham-server
+# sham-server [![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-server.svg)](https://codecov.io/gh/dos-j/sham-server) [![Dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server) [![License](https://img.shields.io/badge/licence-MIT-000000.svg?style=flat-square)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
 
-[![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server)
-[![Dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server)
-[![License](https://img.shields.io/badge/licence-MIT-000000.svg?style=flat-square)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
 Sham-Server allows you to easily create mock webservices that you can use for integration testing.
 
 ## Roadmap
