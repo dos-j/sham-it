@@ -18,3 +18,6 @@ jobs:
       - store_artifacts:
           path: ~/sham/coverage
           destination: coverage
+      - run:
+          name: Publish to CodeCov
+          command: bash <(curl -s https://codecov.io/bash)
