@@ -6,12 +6,18 @@ jobs:
       - image: node:7
     steps:
       - checkout
+      - restore_cache:
+          key: sham-server-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
       - run:
           name: Install yarn
           command: curl -o- -L https://yarnpkg.com/install.sh | bash
       - run:
           name: Install Dependencies
           command: yarn
+      - save_cache:
+          key: sham-server-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
+          paths:
+            - "~/sham/node_modules"
       - run:
           name: Run Tests
           command: npm test -- --coverage -i
