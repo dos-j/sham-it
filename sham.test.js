@@ -174,6 +174,44 @@ describe("Configuring mocked routes", () => {
       { matcher: matcherA, mock: expect.any(Object) }
     ]);
   });
+
+  test("it should allow you to set the number of times the matcher can be matched", () => {
+    const matcher = jest.fn(() => true);
+    const mock = { body: { a: 1 } };
+    server.when(matcher, mock, 1);
+
+    expect(handlerFactory.__handler.matchers).toEqual([
+      {
+        matcher,
+        mock,
+        times: 1
+      }
+    ]);
+  });
+
+  test("it should throw an error if you try set it to return 0 times", () => {
+    const matcher = jest.fn(() => true);
+
+    expect(() => server.when(matcher, { body: "Test" }, 0)).toThrow(
+      new Error("0 is not a valid number of times this matcher can match")
+    );
+  });
+
+  test("it should throw an error if you try set it to return null times", () => {
+    const matcher = jest.fn(() => true);
+
+    expect(() => server.when(matcher, { body: "Test" }, null)).toThrow(
+      new Error("null is not a valid number of times this matcher can match")
+    );
+  });
+
+  test("it should throw an error if you try set it to return -1 times", () => {
+    const matcher = jest.fn(() => true);
+
+    expect(() => server.when(matcher, { body: "Test" }, -1)).toThrow(
+      new Error("-1 is not a valid number of times this matcher can match")
+    );
+  });
 });
 
 describe("Clearing the mocks", () => {
