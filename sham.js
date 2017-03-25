@@ -1,54 +1,15 @@
 const portfinder = require("portfinder");
 const http = require("http");
+const handlerFactory = require("./handlerFactory");
 
-async function sham({ ip = "0.0.0.0", port, defaultReply = {} } = {}) {
+async function sham({ ip = "0.0.0.0", port, defaultReply } = {}) {
   if (!port) {
     port = await portfinder.getPortPromise();
   }
 
-  let matchers = [];
+  const handler = handlerFactory(defaultReply);
 
-  const server = http.createServer((req, res) => {
-    try {
-      for (const item of matchers) {
-        const {
-          matcher,
-          mock: {
-            status = 200,
-            headers = { "Content-Type": "application/json" },
-            body
-          } = {}
-        } = item;
-        if (matcher(req)) {
-          if (item.hasOwnProperty("times")) {
-            item.times--;
-          }
-
-          res.writeHead(status, headers);
-
-          if (body && typeof body === "object") {
-            res.end(JSON.stringify(body));
-          } else {
-            res.end(body);
-          }
-
-          return;
-        }
-      }
-
-      res.writeHead(
-        defaultReply.status || 404,
-        defaultReply.headers || { "Content-Type": "text/plain" }
-      );
-      res.end(defaultReply.body || "Not Found");
-    } catch (ex) {
-      console.error(`Critical Error: ${ex}`, ex);
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end("Internal Server Error");
-    } finally {
-      matchers = matchers.filter(({ times }) => times !== 0);
-    }
-  });
+  const server = http.createServer(handler);
 
   server.listen(port, ip);
 
@@ -72,10 +33,10 @@ async function sham({ ip = "0.0.0.0", port, defaultReply = {} } = {}) {
           item.times = +times;
         }
 
-        matchers.unshift(item);
+        handler.matchers.unshift(item);
       },
       reset() {
-        matchers.length = 0;
+        handler.matchers.length = 0;
       }
     },
     {
