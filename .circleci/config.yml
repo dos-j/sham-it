@@ -20,7 +20,7 @@ jobs:
             - "~/sham/node_modules"
       - run:
           name: Lint Files
-          command: mkdir -p lint && npm lint -- -o "lint/eslint.log"
+          command: mkdir -p lint && npm run lint -- -o "lint/eslint.log"
       - store_artifacts:
           path: ~/sham/lint
           destination: lint
