@@ -4,9 +4,6 @@ jobs:
     working_directory: ~/sham
     docker:
       - image: node:7
-        environment:
-          TEST_REPORT_PATH: ~/sham/reports/
-          TEST_REPORT_FILENAME: jest_junit.xml
     steps:
       - checkout
       - restore_cache:
@@ -26,7 +23,7 @@ jobs:
           command: mkdir -p ~/sham/reports/ && npm run lint -- --format junit --output-file ~/sham/reports/eslint.xml
       - run:
           name: Run Tests
-          command: mkdir -p ~/sham/reports/ && npm test -- --coverage -i
+          command: npm test -- --coverage -i && mv test-report.xml reports/jest-junit.xml
       - store_artifacts:
           path: ~/sham/reports
           destination: reports
