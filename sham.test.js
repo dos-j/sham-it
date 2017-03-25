@@ -22,13 +22,21 @@ jest.mock("http", () => {
 });
 const http = require("http");
 
-let res;
+jest.mock("./handlerFactory", () => {
+  const handlerFactory = jest.fn(() => handlerFactory.__handler);
+  handlerFactory.__handler = jest.fn();
+  handlerFactory.__handler.matchers = [];
+
+  return handlerFactory;
+});
+const handlerFactory = require("./handlerFactory");
 
 beforeEach(() => {
   portfinder.getPortPromise.mockClear();
   http.createServer.mockClear();
   http.__server.close.mockClear();
   http.__server.listen.mockClear();
+  handlerFactory.__handler.matchers.length = 0;
 
   res = {
     writeHead: jest.fn(),
@@ -99,51 +107,44 @@ describe("Creating the Http Server", () => {
     expect(http.__server.listening).toBe(false);
     expect(result.listening).toBe(false);
   });
-});
 
-describe("Returning a Default Reply", () => {
-  test("it should respond with the default reply if there are no mocked routes", async () => {
+  test("uses the handlerFactories handler to handle the requests", async () => {
     await sham();
 
-    const [[handler]] = http.createServer.mock.calls;
-
-    handler({}, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(404, {
-      "Content-Type": "text/plain"
-    });
-    expect(res.end).toHaveBeenCalledWith("Not Found");
+    expect(http.createServer).toHaveBeenCalledWith(handlerFactory.__handler);
   });
+});
 
-  test("it should allow you to override the default reply", async () => {
-    await sham({
-      defaultReply: {
-        status: 418,
-        headers: { "Content-Type": "text/fancy" },
-        body: "Tadaaaa!"
-      }
-    });
+describe("Setting a default reply", () => {
+  test("it should pass the default reply to the handlerFactory", async () => {
+    const defaultReply = {
+      status: 418,
+      headers: { "Content-Type": "text/fancy" },
+      body: "Tadaaaa!"
+    };
+    await sham({ defaultReply });
 
-    const [[handler]] = http.createServer.mock.calls;
+    expect(handlerFactory).toHaveBeenCalledWith(defaultReply);
+  });
+  test("it should pass undefined if the default reply is not specified", async () => {
+    await sham({ port: 9001 });
 
-    handler({}, res);
+    expect(handlerFactory).toHaveBeenCalledWith(undefined);
+  });
+  test("it should pass undefined if no arguments are specified", async () => {
+    await sham();
 
-    expect(res.writeHead).toHaveBeenCalledWith(418, {
-      "Content-Type": "text/fancy"
-    });
-    expect(res.end).toHaveBeenCalledWith("Tadaaaa!");
+    expect(handlerFactory).toHaveBeenCalledWith(undefined);
   });
 });
 
 describe("Configuring mocked routes", () => {
-  let handler;
   let server;
   beforeEach(async () => {
     server = await sham();
-
-    handler = http.createServer.mock.calls[0][0];
   });
   test("it should allow you to mock responses", () => {
+    const matcher = () => true;
     const mock = {
       status: 200,
       headers: {
@@ -151,95 +152,15 @@ describe("Configuring mocked routes", () => {
       },
       body: "Test"
     };
-    server.when(() => true, mock);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(mock.status, mock.headers);
-
-    expect(res.end).toHaveBeenCalledWith(mock.body);
-  });
-
-  test("it should assume you want a status of 200 if you don't specify it", () => {
-    const mock = {
-      headers: {
-        "Content-Type": "text/plain"
-      },
-      body: "Test"
-    };
-    server.when(() => true, mock);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(200, mock.headers);
-
-    expect(res.end).toHaveBeenCalledWith(mock.body);
-  });
-
-  test("it should assume you want a Content-Type of 'application/json' if you don't specify it", () => {
-    const mock = {
-      status: 200,
-      body: "{}"
-    };
-    server.when(() => true, mock);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(mock.status, {
-      "Content-Type": "application/json"
-    });
-
-    expect(res.end).toHaveBeenCalledWith(mock.body);
-  });
-
-  test("it should automatically stringify the body", () => {
-    const mock = {
-      body: {
-        a: 1
-      }
-    };
-    server.when(() => true, mock);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.end).toHaveBeenCalledWith(JSON.stringify(mock.body));
-  });
-
-  test("it should not return the mock if the matcher returns false", () => {
-    const mock = {
-      body: "{}"
-    };
-    server.when(() => false, mock);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(404, {
-      "Content-Type": "text/plain"
-    });
-    expect(res.end).toHaveBeenCalledWith("Not Found");
-  });
-
-  test("it should give the matcher the request object to check", () => {
-    const mock = {
-      body: {
-        a: 1
-      }
-    };
-    const matcher = jest.fn(() => true);
     server.when(matcher, mock);
 
-    const req = {};
-    handler(req, res);
-
-    expect(matcher).toHaveBeenCalledWith(req);
+    expect(handlerFactory.__handler.matchers).toContainEqual({
+      matcher,
+      mock
+    });
   });
 
-  test("it should check matchers in reverse order and only check the first matcher if it returns true", () => {
+  test("it should add new matchers to the top of the list", () => {
     const matcherA = jest.fn(() => true);
     const matcherB = jest.fn(() => true);
     const matcherC = jest.fn(() => true);
@@ -247,60 +168,18 @@ describe("Configuring mocked routes", () => {
     server.when(matcherB, { body: { b: 2 } });
     server.when(matcherC, { body: { c: 3 } });
 
-    const req = {};
-    handler(req, res);
-
-    expect(matcherC).toHaveBeenCalled();
-    expect(matcherB).not.toHaveBeenCalled();
-    expect(matcherA).not.toHaveBeenCalled();
-
-    expect(res.end).toHaveBeenCalledWith(JSON.stringify({ c: 3 }));
-  });
-
-  test("it should check all matchers if none of them return true", () => {
-    const matcherA = jest.fn(() => false);
-    const matcherB = jest.fn(() => false);
-    const matcherC = jest.fn(() => false);
-    server.when(matcherA, { body: { a: 1 } });
-    server.when(matcherB, { body: { b: 2 } });
-    server.when(matcherC, { body: { c: 3 } });
-
-    const req = {};
-    handler(req, res);
-
-    expect(matcherC).toHaveBeenCalled();
-    expect(matcherB).toHaveBeenCalled();
-    expect(matcherA).toHaveBeenCalled();
-
-    expect(res.end).toHaveBeenCalledWith("Not Found");
-  });
-
-  test("it should be able to return the mock for a matcher in the middle of the list of matchers", () => {
-    const matcherA = jest.fn(() => true);
-    const matcherB = jest.fn(() => true);
-    const matcherC = jest.fn(() => false);
-    server.when(matcherA, { body: { a: 1 } });
-    server.when(matcherB, { body: { b: 2 } });
-    server.when(matcherC, { body: { c: 3 } });
-
-    const req = {};
-    handler(req, res);
-
-    expect(matcherC).toHaveBeenCalled();
-    expect(matcherB).toHaveBeenCalled();
-    expect(matcherA).not.toHaveBeenCalled();
-
-    expect(res.end).toHaveBeenCalledWith(JSON.stringify({ b: 2 }));
+    expect(handlerFactory.__handler.matchers).toEqual([
+      { matcher: matcherC, mock: expect.any(Object) },
+      { matcher: matcherB, mock: expect.any(Object) },
+      { matcher: matcherA, mock: expect.any(Object) }
+    ]);
   });
 });
 
 describe("Clearing the mocks", () => {
-  let handler;
   let server;
   beforeEach(async () => {
     server = await sham();
-
-    handler = http.createServer.mock.calls[0][0];
   });
 
   test("it should not check matchers if they have been reset", () => {
@@ -311,81 +190,10 @@ describe("Clearing the mocks", () => {
     server.when(matcherB, { body: { b: 2 } });
     server.when(matcherC, { body: { c: 3 } });
 
+    expect(handlerFactory.__handler.matchers).toHaveLength(3);
+
     server.reset();
 
-    const req = {};
-    handler(req, res);
-
-    expect(matcherC).not.toHaveBeenCalled();
-    expect(matcherB).not.toHaveBeenCalled();
-    expect(matcherA).not.toHaveBeenCalled();
-
-    expect(res.end).toHaveBeenCalledWith("Not Found");
-  });
-});
-
-describe("Mocks that expire", () => {
-  let handler;
-  let server;
-  beforeEach(async () => {
-    server = await sham();
-
-    handler = http.createServer.mock.calls[0][0];
-  });
-
-  test("it should only match once", () => {
-    const matcher = jest.fn(() => true);
-    server.when(matcher, { body: "Test" }, 1);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.end).lastCalledWith("Test");
-
-    handler(req, res);
-
-    expect(res.end).lastCalledWith("Not Found");
-  });
-
-  test("it should only match twice", () => {
-    const matcher = jest.fn(() => true);
-    server.when(matcher, { body: "Test" }, 2);
-
-    const req = {};
-    handler(req, res);
-
-    expect(res.end).lastCalledWith("Test");
-
-    handler(req, res);
-
-    expect(res.end).lastCalledWith("Test");
-
-    handler(req, res);
-
-    expect(res.end).lastCalledWith("Not Found");
-  });
-
-  test("it should throw an error if you try set it to return 0 times", () => {
-    const matcher = jest.fn(() => true);
-
-    expect(() => server.when(matcher, { body: "Test" }, 0)).toThrow(
-      new Error("0 is not a valid number of times this matcher can match")
-    );
-  });
-
-  test("it should throw an error if you try set it to return null times", () => {
-    const matcher = jest.fn(() => true);
-
-    expect(() => server.when(matcher, { body: "Test" }, null)).toThrow(
-      new Error("null is not a valid number of times this matcher can match")
-    );
-  });
-
-  test("it should throw an error if you try set it to return -1 times", () => {
-    const matcher = jest.fn(() => true);
-
-    expect(() => server.when(matcher, { body: "Test" }, -1)).toThrow(
-      new Error("-1 is not a valid number of times this matcher can match")
-    );
+    expect(handlerFactory.__handler.matchers).toHaveLength(0);
   });
 });

@@ -41,7 +41,6 @@ module.exports = {
     "no-unused-labels": "error",
     "no-useless-return": "error",
     "no-delete-var": "error",
-    "no-undefined": "error",
     "no-unused-vars": "error",
     yoda: "error",
 
