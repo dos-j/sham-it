@@ -23,7 +23,7 @@ jobs:
             - "~/sham/node_modules"
       - run:
           name: Lint Files
-          command: mkdir -p lint && npm run lint -- --format junit --output-file ~/sham/reports/eslint.xml
+          command: mkdir -p reports && npm run lint -- --format junit --output-file ~/sham/reports/eslint.xml
       - store_artifacts:
           path: ~/sham/reports
           destination: reports
