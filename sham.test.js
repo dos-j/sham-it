@@ -65,7 +65,7 @@ describe("Choosing a Port", () => {
   });
 
   test("does not call portfinder if a port has been provided", async () => {
-    const result = await sham({ port: 9000 });
+    await sham({ port: 9000 });
 
     expect(require("portfinder").getPortPromise).not.toHaveBeenCalled();
   });
@@ -73,13 +73,13 @@ describe("Choosing a Port", () => {
 
 describe("Creating the Http Server", () => {
   test("creates a http server and listens on the default ip/port", async () => {
-    const result = await sham();
+    await sham();
 
     expect(http.__server.listen).toHaveBeenCalledWith(8000, "0.0.0.0");
   });
 
   test("listens on the correct ports", async () => {
-    const result = await sham({ ip: "127.0.0.1", port: 9000 });
+    await sham({ ip: "127.0.0.1", port: 9000 });
 
     expect(http.__server.listen).toHaveBeenCalledWith(9000, "127.0.0.1");
   });
@@ -103,7 +103,7 @@ describe("Creating the Http Server", () => {
 
 describe("Returning a Default Reply", () => {
   test("it should respond with the default reply if there are no mocked routes", async () => {
-    const result = await sham();
+    await sham();
 
     const [[handler]] = http.createServer.mock.calls;
 
@@ -116,7 +116,7 @@ describe("Returning a Default Reply", () => {
   });
 
   test("it should allow you to override the default reply", async () => {
-    const result = await sham({
+    await sham({
       defaultReply: {
         status: 418,
         headers: { "Content-Type": "text/fancy" },

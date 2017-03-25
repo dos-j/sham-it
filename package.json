@@ -18,15 +18,20 @@
   },
   "homepage": "https://github.com/dos-j/sham-server#readme",
   "dependencies": {
+    "portfinder": "^1.0.13"
+  },
+  "devDependencies": {
+    "eslint": "^3.18.0",
+    "eslint-config-prettier": "^1.5.0",
     "husky": "^0.13.2",
     "jest": "^19.0.2",
     "lint-staged": "^3.4.0",
-    "portfinder": "^1.0.13",
     "prettier": "^0.22.0"
   },
   "lint-staged": {
     "*.js": [
       "prettier --write",
+      "eslint --fix",
       "git add"
     ]
   }
