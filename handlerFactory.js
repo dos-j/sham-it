@@ -1,9 +1,12 @@
 function handlerFactory(defaultReply = {}) {
   let matchers = [];
+  const calls = [];
 
   const handler = (req, res) => {
+    const call = { request: req };
+    let matcherItem;
     try {
-      for (const item of matchers) {
+      for (matcherItem of matchers) {
         const {
           matcher,
           mock: {
@@ -11,10 +14,12 @@ function handlerFactory(defaultReply = {}) {
             headers = { "Content-Type": "application/json" },
             body
           } = {}
-        } = item;
+        } = matcherItem;
         if (matcher(req)) {
-          if (item.hasOwnProperty("times")) {
-            item.times--;
+          call.matched = matcherItem;
+
+          if (matcherItem.hasOwnProperty("times")) {
+            matcherItem.times--;
           }
 
           res.writeHead(status, headers);
@@ -36,10 +41,15 @@ function handlerFactory(defaultReply = {}) {
       res.end(defaultReply.body || "Not Found");
     } catch (ex) {
       console.error(`Critical Error: ${ex}`, ex);
+
+      call.source = matcherItem;
+      call.error = ex;
+
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Internal Server Error");
     } finally {
       matchers = matchers.filter(({ times }) => times !== 0);
+      calls.push(call);
     }
   };
 
@@ -48,6 +58,12 @@ function handlerFactory(defaultReply = {}) {
       enumerable: true,
       get() {
         return matchers;
+      }
+    },
+    calls: {
+      enumerable: true,
+      get() {
+        return calls;
       }
     }
   });

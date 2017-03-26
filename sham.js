@@ -40,6 +40,7 @@ async function sham({ ip = "0.0.0.0", port, defaultReply } = {}) {
       },
       reset() {
         handler.matchers.length = 0;
+        handler.calls.length = 0;
       }
     },
     {
@@ -47,6 +48,12 @@ async function sham({ ip = "0.0.0.0", port, defaultReply } = {}) {
         enumerable: true,
         get() {
           return server.listening;
+        }
+      },
+      calls: {
+        enumerable: true,
+        get() {
+          return handler.calls;
         }
       }
     }

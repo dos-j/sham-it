@@ -26,6 +26,7 @@ jest.mock("./handlerFactory", () => {
   const handlerFactory = jest.fn(() => handlerFactory.__handler);
   handlerFactory.__handler = jest.fn();
   handlerFactory.__handler.matchers = [];
+  handlerFactory.__handler.calls = [];
 
   return handlerFactory;
 });
@@ -37,6 +38,7 @@ beforeEach(() => {
   http.__server.close.mockClear();
   http.__server.listen.mockClear();
   handlerFactory.__handler.matchers.length = 0;
+  handlerFactory.__handler.calls.length = 0;
 
   res = {
     writeHead: jest.fn(),
@@ -226,7 +228,30 @@ describe("Configuring mocked routes", () => {
   });
 });
 
-describe("Clearing the mocks", () => {
+describe("Call List", () => {
+  let server;
+
+  beforeEach(async () => {
+    server = await sham();
+  });
+
+  test("it should track all the calls the sham server receives", () => {
+    let requestA, requestB, requestC;
+    handlerFactory.__handler.calls.push(
+      (requestA = { req: {}, matched: { mock: { body: "A" } } })
+    );
+    handlerFactory.__handler.calls.push(
+      (requestB = { req: {}, matched: { mock: { body: "B" } } })
+    );
+    handlerFactory.__handler.calls.push(
+      (requestC = { req: {}, matched: { mock: { body: "C" } } })
+    );
+
+    expect(server.calls).toEqual([requestA, requestB, requestC]);
+  });
+});
+
+describe("Triggering a reset", () => {
   let server;
   beforeEach(async () => {
     server = await sham();
@@ -245,5 +270,17 @@ describe("Clearing the mocks", () => {
     server.reset();
 
     expect(handlerFactory.__handler.matchers).toHaveLength(0);
+  });
+
+  test("it should reset the calls the sham server has received", () => {
+    handlerFactory.__handler.calls.push({});
+    handlerFactory.__handler.calls.push({});
+    handlerFactory.__handler.calls.push({});
+
+    expect(handlerFactory.__handler.calls).toHaveLength(3);
+
+    server.reset();
+
+    expect(handlerFactory.__handler.calls).toHaveLength(0);
   });
 });

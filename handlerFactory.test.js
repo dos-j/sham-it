@@ -258,3 +258,70 @@ describe("Mocks that expire", () => {
     expect(res.end).lastCalledWith("Not Found");
   });
 });
+
+describe("Call list", () => {
+  test("it should log each call to the handler", () => {
+    expect(handler.calls).toHaveLength(0);
+
+    handler({}, res);
+
+    expect(handler.calls).toHaveLength(1);
+
+    handler({}, res);
+    handler({}, res);
+
+    expect(handler.calls).toHaveLength(3);
+  });
+
+  test("it should include the request in the call", () => {
+    const req = { uri: "a/b/c" };
+    handler(req, res);
+
+    expect(handler.calls).toContainEqual(
+      expect.objectContaining({ request: req })
+    );
+  });
+
+  test("it should not included a matched object if there were no matches", () => {
+    const req = { uri: "a/b/c" };
+    handler(req, res);
+
+    expect(handler.calls).not.toContainEqual(
+      expect.objectContaining({ matched: expect.any(Object) })
+    );
+  });
+
+  test("it should include the matched object if there were matches", () => {
+    handler.matchers.unshift({ matcher: () => true, mock: { body: "TEST" } });
+
+    const req = { uri: "a/b/c" };
+    handler(req, res);
+
+    expect(handler.calls).toContainEqual(
+      expect.objectContaining({ matched: expect.any(Object) })
+    );
+  });
+
+  test("it should record the error if the matcher throws one", () => {
+    const spy = jest.spyOn(console, "error");
+    spy.mockImplementation(() => false);
+    try {
+      const error = new Error("TEST");
+      const matcherItem = {
+        matcher() {
+          throw error;
+        }
+      };
+      handler.matchers.unshift(matcherItem);
+
+      const req = { uri: "a/b/c" };
+      handler(req, res);
+
+      expect(handler.calls).toContainEqual(
+        expect.objectContaining({ request: req, error, source: matcherItem })
+      );
+    } finally {
+      spy.mockRestore();
+    }
+  });
+});
