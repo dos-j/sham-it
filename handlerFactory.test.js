@@ -91,6 +91,14 @@ describe("Configuring mocked routes", () => {
     expect(res.end).toHaveBeenCalledWith(mock.body);
   });
 
+  test("it should handle a bodyless mock", () => {
+    handler.matchers.unshift({ matcher: () => true });
+
+    handler({}, res);
+
+    expect(res.end).toHaveBeenCalledWith(undefined);
+  });
+
   test("it should automatically stringify the body", () => {
     const mock = {
       body: {
