@@ -160,6 +160,18 @@ describe("Configuring mocked routes", () => {
     });
   });
 
+  test("it should throw an error if you do not specify a matcher", () => {
+    expect(() => server.when()).toThrow(
+      new Error("'matcher' argument is required")
+    );
+  });
+
+  test("it should throw an error if you do not specify a mock", () => {
+    expect(() => server.when(() => true)).toThrow(
+      new Error("'mock' argument is required")
+    );
+  });
+
   test("it should add new matchers to the top of the list", () => {
     const matcherA = jest.fn(() => true);
     const matcherB = jest.fn(() => true);
