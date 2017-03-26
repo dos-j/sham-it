@@ -37,6 +37,8 @@ async function sham({ ip = "0.0.0.0", port, defaultReply } = {}) {
         }
 
         handler.matchers.unshift(item);
+
+        return item;
       },
       reset() {
         handler.matchers.length = 0;

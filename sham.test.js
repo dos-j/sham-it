@@ -162,6 +162,24 @@ describe("Configuring mocked routes", () => {
     });
   });
 
+  test("it should return the matcherItem", () => {
+    const matcher = () => true;
+    const mock = {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: "Test"
+    };
+
+    const result = server.when(matcher, mock);
+
+    expect(result).toEqual({
+      matcher,
+      mock
+    });
+  });
+
   test("it should throw an error if you do not specify a matcher", () => {
     expect(() => server.when()).toThrow(
       new Error("'matcher' argument is required")
