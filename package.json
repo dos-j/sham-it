@@ -1,7 +1,7 @@
 {
   "name": "sham-server",
   "version": "0.0.1",
-  "description": "Quickly create a mock http service, mock endpoints and assert that they have been called.",
+  "description": "Create a Sham HTTP server and mock out endpoints in JS",
   "main": "index.js",
   "scripts": {
     "precommit": "lint-staged",
