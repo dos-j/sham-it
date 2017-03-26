@@ -47,7 +47,11 @@ describe("Configuring mocked routes", () => {
       },
       body: "Test"
     };
-    handler.matchers.unshift({ matcher: () => true, mock });
+    handler.matchers.unshift({
+      matcher: () => true,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -64,7 +68,11 @@ describe("Configuring mocked routes", () => {
       },
       body: "Test"
     };
-    handler.matchers.unshift({ matcher: () => true, mock });
+    handler.matchers.unshift({
+      matcher: () => true,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -79,7 +87,11 @@ describe("Configuring mocked routes", () => {
       status: 200,
       body: "{}"
     };
-    handler.matchers.unshift({ matcher: () => true, mock });
+    handler.matchers.unshift({
+      matcher: () => true,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -92,7 +104,10 @@ describe("Configuring mocked routes", () => {
   });
 
   test("it should handle a bodyless mock", () => {
-    handler.matchers.unshift({ matcher: () => true });
+    handler.matchers.unshift({
+      matcher: () => true,
+      calls: []
+    });
 
     handler({}, res);
 
@@ -105,7 +120,11 @@ describe("Configuring mocked routes", () => {
         a: 1
       }
     };
-    handler.matchers.unshift({ matcher: () => true, mock });
+    handler.matchers.unshift({
+      matcher: () => true,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -117,7 +136,11 @@ describe("Configuring mocked routes", () => {
     const mock = {
       body: "{}"
     };
-    handler.matchers.unshift({ matcher: () => false, mock });
+    handler.matchers.unshift({
+      matcher: () => false,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -135,7 +158,11 @@ describe("Configuring mocked routes", () => {
       }
     };
     const matcher = jest.fn(() => true);
-    handler.matchers.unshift({ matcher: matcher, mock });
+    handler.matchers.unshift({
+      matcher: matcher,
+      mock,
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -147,9 +174,21 @@ describe("Configuring mocked routes", () => {
     const matcherA = jest.fn(() => true);
     const matcherB = jest.fn(() => true);
     const matcherC = jest.fn(() => true);
-    handler.matchers.unshift({ matcher: matcherA, mock: { body: { a: 1 } } });
-    handler.matchers.unshift({ matcher: matcherB, mock: { body: { b: 2 } } });
-    handler.matchers.unshift({ matcher: matcherC, mock: { body: { c: 3 } } });
+    handler.matchers.unshift({
+      matcher: matcherA,
+      mock: { body: { a: 1 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherB,
+      mock: { body: { b: 2 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherC,
+      mock: { body: { c: 3 } },
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -165,9 +204,21 @@ describe("Configuring mocked routes", () => {
     const matcherA = jest.fn(() => false);
     const matcherB = jest.fn(() => false);
     const matcherC = jest.fn(() => false);
-    handler.matchers.unshift({ matcher: matcherA, mock: { body: { a: 1 } } });
-    handler.matchers.unshift({ matcher: matcherB, mock: { body: { b: 2 } } });
-    handler.matchers.unshift({ matcher: matcherC, mock: { body: { c: 3 } } });
+    handler.matchers.unshift({
+      matcher: matcherA,
+      mock: { body: { a: 1 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherB,
+      mock: { body: { b: 2 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherC,
+      mock: { body: { c: 3 } },
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -183,9 +234,21 @@ describe("Configuring mocked routes", () => {
     const matcherA = jest.fn(() => true);
     const matcherB = jest.fn(() => true);
     const matcherC = jest.fn(() => false);
-    handler.matchers.unshift({ matcher: matcherA, mock: { body: { a: 1 } } });
-    handler.matchers.unshift({ matcher: matcherB, mock: { body: { b: 2 } } });
-    handler.matchers.unshift({ matcher: matcherC, mock: { body: { c: 3 } } });
+    handler.matchers.unshift({
+      matcher: matcherA,
+      mock: { body: { a: 1 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherB,
+      mock: { body: { b: 2 } },
+      calls: []
+    });
+    handler.matchers.unshift({
+      matcher: matcherC,
+      mock: { body: { c: 3 } },
+      calls: []
+    });
 
     const req = {};
     handler(req, res);
@@ -205,7 +268,8 @@ describe("Configuring mocked routes", () => {
       handler.matchers.unshift({
         matcher() {
           throw error;
-        }
+        },
+        calls: []
       });
 
       handler({}, res);
@@ -228,7 +292,12 @@ describe("Configuring mocked routes", () => {
 describe("Mocks that expire", () => {
   test("it should only match once", () => {
     const matcher = jest.fn(() => true);
-    handler.matchers.unshift({ matcher, mock: { body: "Test" }, times: 1 });
+    handler.matchers.unshift({
+      matcher,
+      mock: { body: "Test" },
+      calls: [],
+      times: 1
+    });
 
     const req = {};
     handler(req, res);
@@ -242,7 +311,12 @@ describe("Mocks that expire", () => {
 
   test("it should only match twice", () => {
     const matcher = jest.fn(() => true);
-    handler.matchers.unshift({ matcher, mock: { body: "Test" }, times: 2 });
+    handler.matchers.unshift({
+      matcher,
+      mock: { body: "Test" },
+      calls: [],
+      times: 2
+    });
 
     const req = {};
     handler(req, res);
@@ -292,7 +366,11 @@ describe("Call list", () => {
   });
 
   test("it should include the matched object if there were matches", () => {
-    handler.matchers.unshift({ matcher: () => true, mock: { body: "TEST" } });
+    handler.matchers.unshift({
+      matcher: () => true,
+      mock: { body: "TEST" },
+      calls: []
+    });
 
     const req = { uri: "a/b/c" };
     handler(req, res);
@@ -310,7 +388,8 @@ describe("Call list", () => {
       const matcherItem = {
         matcher() {
           throw error;
-        }
+        },
+        calls: []
       };
       handler.matchers.unshift(matcherItem);
 
@@ -320,6 +399,69 @@ describe("Call list", () => {
       expect(handler.calls).toContainEqual(
         expect.objectContaining({ request: req, error, source: matcherItem })
       );
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  test("it should add the call to the matcher", () => {
+    const matcherItem = {
+      matcher: () => true,
+      mock: { body: "Test" },
+      calls: []
+    };
+    handler.matchers.unshift(matcherItem);
+
+    const req = { uri: "a/b/c" };
+    handler(req, res);
+
+    expect(matcherItem.calls).toContainEqual(
+      expect.objectContaining({ request: req })
+    );
+  });
+
+  test("it should add an error to the matcher if there was an error", () => {
+    const spy = jest.spyOn(console, "error");
+    spy.mockImplementation(() => false);
+    try {
+      const error = new Error("TEST");
+      const matcherItem = {
+        matcher() {
+          throw error;
+        },
+        calls: []
+      };
+      handler.matchers.unshift(matcherItem);
+
+      const req = { uri: "a/b/c" };
+      handler(req, res);
+
+      expect(matcherItem.errors).toContainEqual(
+        expect.objectContaining({ request: req, error })
+      );
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  test("it should add multiple errors to the matcher if there was an error", () => {
+    const spy = jest.spyOn(console, "error");
+    spy.mockImplementation(() => false);
+    try {
+      const error = new Error("TEST");
+      const matcherItem = {
+        matcher() {
+          throw error;
+        },
+        calls: []
+      };
+      handler.matchers.unshift(matcherItem);
+
+      const req = { uri: "a/b/c" };
+      handler(req, res);
+      handler(req, res);
+
+      expect(matcherItem.errors).toHaveLength(2);
     } finally {
       spy.mockRestore();
     }

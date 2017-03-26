@@ -24,7 +24,7 @@ async function sham({ ip = "0.0.0.0", port, defaultReply } = {}) {
         return server.close();
       },
       when(matcher = required("matcher"), mock = required("mock"), times) {
-        const item = { matcher, mock };
+        const item = { matcher, mock, calls: [] };
 
         if (typeof times !== "undefined") {
           if (!(+times >= 1)) {

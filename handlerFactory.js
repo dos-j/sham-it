@@ -30,6 +30,8 @@ function handlerFactory(defaultReply = {}) {
             res.end(body);
           }
 
+          matcherItem.calls.push({ request: req });
+
           return;
         }
       }
@@ -44,6 +46,9 @@ function handlerFactory(defaultReply = {}) {
 
       call.source = matcherItem;
       call.error = ex;
+
+      matcherItem.errors = matcherItem.errors || [];
+      matcherItem.errors.push({ request: req, error: ex });
 
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Internal Server Error");

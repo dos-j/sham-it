@@ -158,7 +158,8 @@ describe("Configuring mocked routes", () => {
 
     expect(handlerFactory.__handler.matchers).toContainEqual({
       matcher,
-      mock
+      mock,
+      calls: []
     });
   });
 
@@ -176,7 +177,8 @@ describe("Configuring mocked routes", () => {
 
     expect(result).toEqual({
       matcher,
-      mock
+      mock,
+      calls: []
     });
   });
 
@@ -201,9 +203,9 @@ describe("Configuring mocked routes", () => {
     server.when(matcherC, { body: { c: 3 } });
 
     expect(handlerFactory.__handler.matchers).toEqual([
-      { matcher: matcherC, mock: expect.any(Object) },
-      { matcher: matcherB, mock: expect.any(Object) },
-      { matcher: matcherA, mock: expect.any(Object) }
+      { matcher: matcherC, mock: expect.any(Object), calls: [] },
+      { matcher: matcherB, mock: expect.any(Object), calls: [] },
+      { matcher: matcherA, mock: expect.any(Object), calls: [] }
     ]);
   });
 
@@ -216,6 +218,7 @@ describe("Configuring mocked routes", () => {
       {
         matcher,
         mock,
+        calls: [],
         times: 1
       }
     ]);
