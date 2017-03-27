@@ -1,6 +1,6 @@
 {
   "name": "sham-server",
-  "version": "0.0.1",
+  "version": "1.0.0-beta.1",
   "description": "Create a Sham HTTP server and mock out endpoints in JS",
   "main": "index.js",
   "scripts": {
