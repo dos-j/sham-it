@@ -2,15 +2,15 @@
 [![NPM Version](https://img.shields.io/npm/v/sham-server.svg)](https://www.npmjs.com/package/sham-server)
 [![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-server.svg)](https://codecov.io/gh/dos-j/sham-server) [![dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server) [![devDependencies](https://david-dm.org/dos-j/sham-server/dev-status.svg)](https://david-dm.org/dos-j/sham-server#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-server/badge.svg)](https://snyk.io/test/github/dos-j/sham-server) [![License](	https://img.shields.io/github/license/dos-j/sham-server.svg)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
 
-Sham-Server allows you to easily create mock webservices that you can use for integration testing.
+Sham-Server allows you to easily create mock web services that you can use within your tests.
 
-When creating integration tests against API's which depend on third party services you are forced to choose between loading the entire platform, create complicated stub services or mock out the parts of your api that call external services.
+When you need to test a web service which depends on third party web services you are forced to choose between loading the entire platform, creating complicated stub services or mocking out the parts of your codebase that call external services.
 
-As your platform get's bigger, trying to load all of it at once will grind your integration tests to a halt. This forces you to choose between stub services and mocking out huge chucks of the api.
+As the size of your platform gets bigger, trying to load all of it at once will grind your integration tests to a halt. This inevitably forces you to choose between stub services and mocking out huge chucks of the api.
 
-As the number of tests you right increases the complexity of your stub services will also have to increase to send your api down the paths you need to test.
+As the number of tests you write increases, the complexity of your stub services will also have to increase to send your api down the paths you need to test. You will also need to come up with inventive solutions to change your api's responses between tests and check that it was called.
 
-With mocking libraries this isn't the case, it's very easy to mock out individual calls within the tests you are writing. Unfortunately you're not testing the classes/functions in your api which you are needing to mock out undermining a lot of the value of the tests.
+With mocking classes and functions there are plenty of easy to use options for mocking out individual calls within the tests you are writing and writing expectations that they were cakked. Unfortunately with this approach, you aren't testing how your service behaves across the network and the code you've replace with mocks won't get tested.
 
 With sham-server you get the best of both worlds. Sham server create's a node http server which means you only need to point your code at a different uri. Sham server also provides an easy method for mocking requests and records all of the requests so that you can write expectations about the http calls your code is making.
 
@@ -145,7 +145,7 @@ Instead of mocking out the request library, you could use sham-server to run int
 
 The [supertest-example.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.js) and [supertest-example.test.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.test.js) are examples of testing an express api which (using request) calls an external api to validate the incoming requests.
 
-When trying to run integration tests against API's having to mock out calls to external services can be difficult and in doing so undermines the value of the tests. With sham-server you to to run integration tests against mock/stub api's, but still get the same convenience and flexibility provided by mocking libraries.
+When trying to run integration tests against API's having to mock out calls to external services can be difficult and in doing so undermines the value of the tests. With sham-server you can run integration tests against mock/stub api's, but still get the same convenience and flexibility provided by mocking libraries.
 
 ## Roadmap
 
