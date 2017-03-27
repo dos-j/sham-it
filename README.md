@@ -149,7 +149,9 @@ When trying to run integration tests against API's having to mock out calls to e
 
 ## Roadmap
 
-Currently this project is working towards a 1.0 Release. You can see our progress [here](https://github.com/dos-j/sham-server/projects/1)
+We've just published our 1.0.0 version 🎉.
+
+For our future plans and roadmap we are using GitHub Projects. You can see our projects [here](https://github.com/dos-j/sham-server/projects)
 
 ## Issues
 
