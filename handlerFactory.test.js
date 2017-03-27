@@ -36,6 +36,19 @@ describe("Returning a Default Reply", () => {
     });
     expect(res.end).toHaveBeenCalledWith("Tadaaaa!");
   });
+
+  test("it should automatically stringify the body of the default reply", () => {
+    handler = handlerFactory({
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+      body: { not: "matched" }
+    });
+
+    const req = {};
+    handler(req, res);
+
+    expect(res.end).toHaveBeenCalledWith(JSON.stringify({ not: "matched" }));
+  });
 });
 
 describe("Configuring mocked routes", () => {

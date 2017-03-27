@@ -1,7 +1,20 @@
 # sham-server
-[![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-server.svg)](https://codecov.io/gh/dos-j/sham-server) [![dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server) [![devDependencies](https://david-dm.org/dos-j/sham-server/dev-status.svg)](https://david-dm.org/dos-j/sham-server#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-server/badge.svg)](https://snyk.io/test/github/dos-j/sham-server) [![License](https://img.shields.io/badge/licence-MIT-000000.svg?style=flat-square)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
+[![NPM Version](https://img.shields.io/npm/v/sham-server.svg)](https://www.npmjs.com/package/sham-server)
+[![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-server.svg)](https://codecov.io/gh/dos-j/sham-server) [![dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server) [![devDependencies](https://david-dm.org/dos-j/sham-server/dev-status.svg)](https://david-dm.org/dos-j/sham-server#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-server/badge.svg)](https://snyk.io/test/github/dos-j/sham-server) [![License](	https://img.shields.io/github/license/dos-j/sham-server.svg)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
 
 Sham-Server allows you to easily create mock webservices that you can use for integration testing.
+
+When creating integration tests against API's which depend on third party services you are forced to choose between loading the entire platform, create complicated stub services or mock out the parts of your api that call external services.
+
+As your platform get's bigger, trying to load all of it at once will grind your integration tests to a halt. This forces you to choose between stub services and mocking out huge chucks of the api.
+
+As the number of tests you right increases the complexity of your stub services will also have to increase to send your api down the paths you need to test.
+
+With mocking libraries this isn't the case, it's very easy to mock out individual calls within the tests you are writing. Unfortunately you're not testing the classes/functions in your api which you are needing to mock out undermining a lot of the value of the tests.
+
+With sham-server you get the best of both worlds. Sham server create's a node http server which means you only need to point your code at a different uri. Sham server also provides an easy method for mocking requests and records all of the requests so that you can write expectations about the http calls your code is making.
+
+All of the code to create mock routes and write expectations can be done within your test functions, giving you the convenience and flexibility you get when using mocking libraries as well as the confidence that a network request was made.
 
 ## Getting Started
 
@@ -15,13 +28,13 @@ Then in JavaScript follow the steps below to create a sham-server, mock out and 
 // Step 1: Import sham-server
 const sham = require("sham-server");
 
-// Step 2: Create a new sham server using the defaults
-const server = await sham();
+(async function() {
+  // Step 2: Create a new sham server using the defaults
+  const server = await sham();
 
-// or...
-// create a new sham server with all options
-const serverWithOptions = await sham({
-
+  // or...
+  // create a new sham server with all options
+  const serverWithOptions = await sham({
     // ip is the IP Address that the node server powering sham will listen on
     ip: "0.0.0.0", // 0.0.0.0 is the default
 
@@ -30,99 +43,109 @@ const serverWithOptions = await sham({
 
     // defaultReply is used when a mocked route isn't matched
     defaultReply: {
+      status: 404, // 404 is the default status of the defaultReply
 
-        status: 404, // 404 is the default status of the defaultReply
+      headers: { "Content-Type": "text/plain" }, // "Content-Type": "text/plain" is the default header of the defaultReply
 
-        headers: { "Content-Type": "text/plain" }, // "Content-Type": "text/plain" is the default header of the defaultReply
-
-        body: "Not Found" // "Not Found" is the default body of the default reply
-
+      body: "Not Found" // "Not Found" is the default body of the default reply
     }
-});
+  });
 
-// Step 3: Check the properties available on the sham server
-const {
-    ip,
-    port, // This is the important one!
-    listening,
-    calls
-} = server;
+  // Step 3: Check the properties available on the sham server
+  console.log(`ip: ${server.ip}`);
+  console.log(`port: ${server.port}`);
+  console.log(`listening: ${server.listening}`);
+  console.log(`calls: ${server.calls.length}`);
 
-// Step 4: Mock out an endpoint
-const matcher = server.when(
+  // Step 4: Mock out an endpoint
+  const matcher = server.when(
     // matcher function that is checked. (Required, will throw an error if not supplied)
     req => {
-        console.log(req); // This is the request which sham server receives
+      // You could use the node built-in url module to parse the request
+      const {
+        pathname
+      } = require("url").parse(req.url);
 
-        // You could use the node built-in url module to parse the request
-        const {
-            href,
-            search,
-            query,
-            pathname
-        } = require("url").parse(req.url);
-
-        return req.method === "GET" &&
-                pathname === "/a/b/c"
+      return req.method === "GET" && pathname === "/a/b/c";
     },
-
     // Mocked response that's returned if the matcher function returns true (Required, will throw an error if not supplied)
     {
-        status: 200, // Optional: Defaults to 200
-        headers: { "Content-Type": "application/json" } // Optional: Defaults to { "Content-Type": "application/json" }
-        body: { my: "data" } // If an object is supplied it is automatically stringified using JSON.stringify(...)
+      status: 200, // Optional: Defaults to 200
+      headers: { "Content-Type": "application/json" }, // Optional: Defaults to { "Content-Type": "application/json" }
+      body: { my: "data" } // If an object is supplied it is automatically stringified using JSON.stringify(...)
     }
 
     // Optional: You can also pass in a 3rd parameter for the number of times the matcher should match. After which it will be deleted.
     // If no value is specified then the matcher will match an unlimited number of times.
-);
-console.log(matcher); // { matcher: Function (), mock: { status: ..., headers: ..., body: ... }, calls: [] }
+  );
+  console.log(matcher); // { matcher: [Function], mock: { status: ..., headers: ..., body: ... }, calls: [] }
 
-// Step 5: Send a request to the sham server
-const http = require('http');
+  // Step 5: Send a request to the sham server
+  const request = require("request");
 
-// Step 6: Fire a request against the sham server
-http.get(`http://localhost:${port}/a/b/c`, (res) => {
-  const statusCode = res.statusCode;
-  const contentType = res.headers['content-type'];
+  // Step 6: Fire a request against the sham server
+  await new Promise((resolve, reject) =>
+    request(
+      {
+        uri: `http://localhost:${server.port}/a/b/c`,
+        json: true
+      },
+      (err, res, body) => {
+        if (err) return reject(err);
 
-  console.log(statusCode === matcher.mock.status); // true
-  console.log(contentType === matcher.mock.headers["Content-Type"]); // true
+        const statusCode = res.statusCode;
+        const contentType = res.headers["content-type"];
 
-  res.setEncoding('utf8');
-  let rawData = '';
-  res.on('data', (chunk) => rawData += chunk);
-  res.on('end', () => {
-    let parsedData = JSON.parse(rawData);
+        console.log(statusCode === matcher.mock.status); // true
+        console.log(contentType === matcher.mock.headers["Content-Type"]); // true
 
-    console.log(parsedData.my === matcher.mock.body.my); // true
+        console.log(body.my === matcher.mock.body.my); // true
 
-    // You can also now see the call in either the matcher's list of calls or the server's list of calls
-    console.log(matcher.mock.calls.length); // 1
-    console.log(server.calls.length) // 1
+        resolve(body);
+      }
+    ));
+  // You can also now see the call in either the matcher's list of calls or the server's list of calls
+  console.log(matcher.calls.length); // 1
+  console.log(server.calls.length); // 1
 
-    // In your tests you can expect that sham server received the correct request by doing (jest example)
+  // In your tests you can expect that sham server received the correct request by doing (jest example)
 
-    // expect(matcher.mock.calls).toContainEqual({
-    //    expect.objectContaining({
-    //        request: expect.objectContaining({
-    //            method: "GET",
-    //            url: "/a/b/c"
-    //        })
-    //    });
-    //});
+  // expect(matcher.calls).toContainEqual(
+  //    expect.objectContaining({
+  //        request: expect.objectContaining({
+  //            method: "GET",
+  //            url: "/a/b/c"
+  //        })
+  //    })
+  //);
 
-  });
-});
+  // Step 7: Reset the mocked routes and calls
+  server.reset();
+  console.log(server.calls); // 0
 
-// Step 7: Reset the mocked routes and calls
-server.reset();
-console.log(server.calls); // 0
-
-// Step 8: Optionally close the server to stop it listening
-server.close(); // Typically not required in your tests because when node exists the server will close anyway.
+  // Step 8: Close the server to stop it listening
+  server.close();
+  serverWithOptions.close();
+  console.log(`listening: ${server.listening}`);
+})();
 
 ```
+
+## Examples
+
+Sham server contains the following testing examples.
+
+### Testing a function which calls an api you want to mock
+
+The [request-example.js](https://github.com/dos-j/sham-server/tree/master/examples/request-example.js) and [request-example.test.js](https://github.com/dos-j/sham-server/tree/master/examples/request-example.test.js) are examples of testing a function which is using request to send requests to an api.
+
+Instead of mocking out the request library, you could use sham-server to run integration tests and make sure that the right http calls will actually be sent.
+
+### Testing a web service which calls an api you want to mock
+
+The [supertest-example.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.js) and [supertest-example.test.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.test.js) are examples of testing an express api which (using request) calls an external api to validate the incoming requests.
+
+When trying to run integration tests against API's having to mock out calls to external services can be difficult and in doing so undermines the value of the tests. With sham-server you to to run integration tests against mock/stub api's, but still get the same convenience and flexibility provided by mocking libraries.
 
 ## Roadmap
 

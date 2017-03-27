@@ -1,4 +1,4 @@
-const sham = require("./sham");
+const sham = require("sham-server");
 
 jest.mock("portfinder", () => ({
   getPortPromise: jest.fn(() => new Promise(resolve => resolve(8000)))

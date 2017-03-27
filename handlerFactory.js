@@ -40,7 +40,13 @@ function handlerFactory(defaultReply = {}) {
         defaultReply.status || 404,
         defaultReply.headers || { "Content-Type": "text/plain" }
       );
-      res.end(defaultReply.body || "Not Found");
+
+      const defaultBody = defaultReply.body || "Not Found";
+      if (defaultBody && typeof defaultBody === "object") {
+        res.end(JSON.stringify(defaultBody));
+      } else {
+        res.end(defaultBody);
+      }
     } catch (ex) {
       console.error(`Critical Error: ${ex}`, ex);
 
