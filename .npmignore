@@ -1,0 +1,11 @@
+.vscode
+.circleci
+.editorconfig
+.eslintignore
+.eslintrc
+.gitignore
+coverage
+examples
+*.test.js
+test-report.xml
+yarn.lock
