@@ -9,7 +9,7 @@ describe("Example testing a webservice which depends on another webservice being
   beforeAll(async () => {
     validateServer = await sham({
       defaultReply: {
-        status: 400,
+        status: 401,
         headers: { "Content-Type": "application/json" },
         body: { valid: false }
       }
@@ -19,13 +19,13 @@ describe("Example testing a webservice which depends on another webservice being
       req =>
         req.method === "GET" &&
         req.url === "/validate" &&
-        req.headers.Authorization === "User-1",
+        req.headers.authorization === "User-1",
       { body: { valid: true } }
     );
   });
 
   beforeEach(() => {
-    app = createApp(`http://localhost:${validateServer.port}`);
+    app = createApp(`http://localhost:${validateServer.port}/validate`);
   });
 
   test("Should return valid when a request is sent with the correct autorization token", async () => {

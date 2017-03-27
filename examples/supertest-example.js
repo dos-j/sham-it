@@ -8,13 +8,13 @@ function createApp(validateUri) {
     request(
       {
         headers: {
-          Authorization: req.headers["Authorization"]
+          Authorization: req.headers["authorization"]
         },
         uri: validateUri,
         json: true
       },
-      err => {
-        if (err) {
+      (err, res2) => {
+        if (err || res2.statusCode !== 200) {
           res.end("Invalid");
         } else {
           res.end("Valid");
