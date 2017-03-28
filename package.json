@@ -1,7 +1,7 @@
 {
-  "name": "sham-server",
-  "version": "0.0.0-development",
-  "description": "Create a Sham HTTP server and mock out endpoints in JS",
+  "name": "sham-it",
+  "version": "0.0.0-prerelease",
+  "description": "Create a Sham (Mocked HTTP server) and mock out endpoints in JS",
   "main": "index.js",
   "scripts": {
     "precommit": "lint-staged",
@@ -11,14 +11,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dos-j/sham-server.git"
+    "url": "https://github.com/dos-j/sham-it.git"
   },
   "author": "dos-j",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/dos-j/sham-server/issues"
+    "url": "https://github.com/dos-j/sham-it/issues"
   },
-  "homepage": "https://github.com/dos-j/sham-server#readme",
+  "homepage": "https://github.com/dos-j/sham-it#readme",
   "dependencies": {
     "portfinder": "^1.0.13"
   },

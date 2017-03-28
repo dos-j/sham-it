@@ -1,13 +1,13 @@
-const sham = require("sham-server");
+const shamIt = require("sham-it");
 const createApp = require("./supertest-example");
 const request = require("supertest");
 
 describe("Example testing a webservice which depends on another webservice being mocked by sham", () => {
-  let validateServer;
+  let validateSham;
   let app;
 
   beforeAll(async () => {
-    validateServer = await sham({
+    validateSham = await shamIt({
       defaultReply: {
         status: 401,
         headers: { "Content-Type": "application/json" },
@@ -15,7 +15,7 @@ describe("Example testing a webservice which depends on another webservice being
       }
     });
 
-    validateServer.when(
+    validateSham.when(
       req =>
         req.method === "GET" &&
         req.url === "/validate" &&
@@ -25,7 +25,7 @@ describe("Example testing a webservice which depends on another webservice being
   });
 
   beforeEach(() => {
-    app = createApp(`http://localhost:${validateServer.port}/validate`);
+    app = createApp(`http://localhost:${validateSham.port}/validate`);
   });
 
   test("Should return valid when a request is sent with the correct autorization token", async () => {
@@ -46,5 +46,5 @@ describe("Example testing a webservice which depends on another webservice being
     expect(res.text).toEqual("Invalid");
   });
 
-  afterAll(() => validateServer.close());
+  afterAll(() => validateSham.close());
 });

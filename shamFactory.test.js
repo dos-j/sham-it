@@ -1,4 +1,4 @@
-const sham = require("sham-server");
+const shamIt = require("sham-it");
 
 jest.mock("portfinder", () => ({
   getPortPromise: jest.fn(() => new Promise(resolve => resolve(8000)))
@@ -48,13 +48,13 @@ beforeEach(() => {
 
 describe("Choosing an IP Address", () => {
   test("uses 0.0.0.0 as the ip when one is not provided", async () => {
-    const result = await sham();
+    const result = await shamIt();
 
     expect(result.ip).toBe("0.0.0.0");
   });
 
   test("uses the ip provided", async () => {
-    const result = await sham({ ip: "1.1.1.1" });
+    const result = await shamIt({ ip: "1.1.1.1" });
 
     expect(result.ip).toBe("1.1.1.1");
   });
@@ -62,20 +62,20 @@ describe("Choosing an IP Address", () => {
 
 describe("Choosing a Port", () => {
   test("uses portfinder to find an available port if one is not provided", async () => {
-    const result = await sham();
+    const result = await shamIt();
 
     expect(require("portfinder").getPortPromise).toHaveBeenCalled();
     expect(result.port).toBe(8000);
   });
 
   test("uses the port provided", async () => {
-    const result = await sham({ port: 9000 });
+    const result = await shamIt({ port: 9000 });
 
     expect(result.port).toBe(9000);
   });
 
   test("does not call portfinder if a port has been provided", async () => {
-    await sham({ port: 9000 });
+    await shamIt({ port: 9000 });
 
     expect(require("portfinder").getPortPromise).not.toHaveBeenCalled();
   });
@@ -83,26 +83,26 @@ describe("Choosing a Port", () => {
 
 describe("Creating the Http Server", () => {
   test("creates a http server and listens on the default ip/port", async () => {
-    await sham();
+    await shamIt();
 
     expect(http.__server.listen).toHaveBeenCalledWith(8000, "0.0.0.0");
   });
 
   test("listens on the correct ports", async () => {
-    await sham({ ip: "127.0.0.1", port: 9000 });
+    await shamIt({ ip: "127.0.0.1", port: 9000 });
 
     expect(http.__server.listen).toHaveBeenCalledWith(9000, "127.0.0.1");
   });
 
   test("the http server should be listening when it has been created", async () => {
-    const result = await sham();
+    const result = await shamIt();
 
     expect(http.__server.listening).toBe(true);
     expect(result.listening).toBe(true);
   });
 
   test("closing the http server should stop the server listening", async () => {
-    const result = await sham();
+    const result = await shamIt();
 
     result.close();
 
@@ -111,7 +111,7 @@ describe("Creating the Http Server", () => {
   });
 
   test("uses the handlerFactories handler to handle the requests", async () => {
-    await sham();
+    await shamIt();
 
     expect(http.createServer).toHaveBeenCalledWith(handlerFactory.__handler);
   });
@@ -124,17 +124,17 @@ describe("Setting a default reply", () => {
       headers: { "Content-Type": "text/fancy" },
       body: "Tadaaaa!"
     };
-    await sham({ defaultReply });
+    await shamIt({ defaultReply });
 
     expect(handlerFactory).toHaveBeenCalledWith(defaultReply);
   });
   test("it should pass undefined if the default reply is not specified", async () => {
-    await sham({ port: 9001 });
+    await shamIt({ port: 9001 });
 
     expect(handlerFactory).toHaveBeenCalledWith(undefined);
   });
   test("it should pass undefined if no arguments are specified", async () => {
-    await sham();
+    await shamIt();
 
     expect(handlerFactory).toHaveBeenCalledWith(undefined);
   });
@@ -143,7 +143,7 @@ describe("Setting a default reply", () => {
 describe("Configuring mocked routes", () => {
   let server;
   beforeEach(async () => {
-    server = await sham();
+    server = await shamIt();
   });
   test("it should allow you to mock responses", () => {
     const matcher = () => true;
@@ -253,7 +253,7 @@ describe("Call List", () => {
   let server;
 
   beforeEach(async () => {
-    server = await sham();
+    server = await shamIt();
   });
 
   test("it should track all the calls the sham server receives", () => {
@@ -275,7 +275,7 @@ describe("Call List", () => {
 describe("Triggering a reset", () => {
   let server;
   beforeEach(async () => {
-    server = await sham();
+    server = await shamIt();
   });
 
   test("it should not check matchers if they have been reset", () => {

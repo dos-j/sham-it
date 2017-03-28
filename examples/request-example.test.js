@@ -1,19 +1,19 @@
-const sham = require("sham-server");
+const shamIt = require("sham-it");
 const factory = require("./request-example");
 const url = require("url");
 
 describe("Testing an example service that uses request", () => {
-  let server;
+  let sham;
   beforeAll(async () => {
-    server = await sham();
+    sham = await shamIt();
   });
 
   beforeEach(() => {
-    service = factory(`http://localhost:${server.port}`);
+    service = factory(`http://localhost:${sham.port}`);
   });
 
   test("it gets a single item from the api", async () => {
-    const matcher = server.when(
+    const matcher = sham.when(
       req => {
         const { pathname } = url.parse(req.url);
 
@@ -41,10 +41,10 @@ describe("Testing an example service that uses request", () => {
   });
 
   afterEach(() => {
-    server.reset();
+    sham.reset();
   });
 
   afterAll(() => {
-    server.close();
+    sham.close();
   });
 });

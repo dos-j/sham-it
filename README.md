@@ -1,7 +1,7 @@
-# sham-server
-[![NPM Version](https://img.shields.io/npm/v/sham-server.svg)](https://www.npmjs.com/package/sham-server)
-[![Build Status](https://circleci.com/gh/dos-j/sham-server.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-server) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-server.svg)](https://codecov.io/gh/dos-j/sham-server) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
- [![dependencies](https://david-dm.org/dos-j/sham-server.svg)](https://david-dm.org/dos-j/sham-server) [![devDependencies](https://david-dm.org/dos-j/sham-server/dev-status.svg)](https://david-dm.org/dos-j/sham-server#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-server/badge.svg)](https://snyk.io/test/github/dos-j/sham-server) [![License](	https://img.shields.io/github/license/dos-j/sham-server.svg)](https://github.com/dos-j/sham-server/blob/master/LICENSE)
+# sham-it
+[![NPM Version](https://img.shields.io/npm/v/sham-it.svg)](https://www.npmjs.com/package/sham-it)
+[![Build Status](https://circleci.com/gh/dos-j/sham-it.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-it) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-it.svg)](https://codecov.io/gh/dos-j/sham-it) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
+ [![dependencies](https://david-dm.org/dos-j/sham-it.svg)](https://david-dm.org/dos-j/sham-it) [![devDependencies](https://david-dm.org/dos-j/sham-it/dev-status.svg)](https://david-dm.org/dos-j/sham-it#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-it/badge.svg)](https://snyk.io/test/github/dos-j/sham-it) [![License](	https://img.shields.io/github/license/dos-j/sham-it.svg)](https://github.com/dos-j/sham-it/blob/master/LICENSE)
 
 Sham-Server allows you to easily create mock web services that you can use within your tests.
 
@@ -13,7 +13,7 @@ As the number of tests you write increases, the complexity of your stub services
 
 With mocking classes and functions there are plenty of easy to use options for mocking out individual calls within the tests you are writing and writing expectations that they were cakked. Unfortunately with this approach, you aren't testing how your service behaves across the network and the code you've replace with mocks won't get tested.
 
-With sham-server you get the best of both worlds. Sham server create's a node http server which means you only need to point your code at a different uri. Sham server also provides an easy method for mocking requests and records all of the requests so that you can write expectations about the http calls your code is making.
+With sham-it you get the best of both worlds. Each sham that you create is a http server which means you only need to point your code at a different uri. Each sham also provides methods for mocking requests and records a list of all the requests so that you can write expectations about the http calls your code is making.
 
 All of the code to create mock routes and write expectations can be done within your test functions, giving you the convenience and flexibility you get when using mocking libraries as well as the confidence that a network request was made.
 
@@ -21,17 +21,17 @@ All of the code to create mock routes and write expectations can be done within 
 
 First intall the npm module:
 ```
-npm install sham-server
+npm install sham-it
 ```
 
-Then in JavaScript follow the steps below to create a sham-server, mock out and endpoint, call it then check it was called.
+Then in JavaScript follow the steps below to use sham-it to create a sham, mock out an endpoint, call it then check it was called.
 ```js
-// Step 1: Import sham-server
-const sham = require("sham-server");
+// Step 1: Import sham-it
+const shamIt = require("sham-it");
 
 (async function() {
-  // Step 2: Create a new sham server using the defaults
-  const server = await sham();
+  // Step 2: Create a new sham using the defaults
+  const sham = await shamIt();
 
   // or...
   // create a new sham server with all options
@@ -134,29 +134,27 @@ const sham = require("sham-server");
 
 ## Examples
 
-Sham server contains the following testing examples.
+The sham-it repo contains the following testing examples.
 
 ### Testing a function which calls an api you want to mock
 
-The [request-example.js](https://github.com/dos-j/sham-server/tree/master/examples/request-example.js) and [request-example.test.js](https://github.com/dos-j/sham-server/tree/master/examples/request-example.test.js) are examples of testing a function which is using request to send requests to an api.
+The [request-example.js](https://github.com/dos-j/sham-it/tree/master/examples/request-example.js) and [request-example.test.js](https://github.com/dos-j/sham-it/tree/master/examples/request-example.test.js) are examples of testing a function which is using request to send requests to an api.
 
-Instead of mocking out the request library, you could use sham-server to run integration tests and make sure that the right http calls will actually be sent.
+Instead of mocking out the request library, you could use sham-it to run integration tests and make sure that the right http calls will actually be sent.
 
 ### Testing a web service which calls an api you want to mock
 
-The [supertest-example.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.js) and [supertest-example.test.js](https://github.com/dos-j/sham-server/tree/master/examples/supertest-example.test.js) are examples of testing an express api which (using request) calls an external api to validate the incoming requests.
+The [supertest-example.js](https://github.com/dos-j/sham-it/tree/master/examples/supertest-example.js) and [supertest-example.test.js](https://github.com/dos-j/sham-it/tree/master/examples/supertest-example.test.js) are examples of testing an express api which (using request) calls an external api to validate the incoming requests.
 
-When trying to run integration tests against API's having to mock out calls to external services can be difficult and in doing so undermines the value of the tests. With sham-server you can run integration tests against mock/stub api's, but still get the same convenience and flexibility provided by mocking libraries.
+When trying to run integration tests against API's having to mock out calls to external services can be difficult and in doing so undermines the value of the tests. With sham-it you can run integration tests against mock/stub api's, but still get the same convenience and flexibility provided by mocking libraries.
 
 ## Roadmap
 
-We've just published our 1.0.0 version 🎉.
-
-For our future plans and roadmap we are using GitHub Projects. You can see our projects [here](https://github.com/dos-j/sham-server/projects)
+For our future plans and roadmap we are using GitHub Projects. You can see our projects [here](https://github.com/dos-j/sham-it/projects)
 
 ## Issues
 
-If you find any problems with sham-server or have any feature requests please [log them here](https://github.com/dos-j/sham-server/issues?state=open).
+If you find any problems with sham-it or have any feature requests please [log them here](https://github.com/dos-j/sham-it/issues?state=open).
 
 ## Contributing
 

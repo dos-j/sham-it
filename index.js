@@ -1,1 +1,1 @@
-module.exports = require("./sham");
+module.exports = require("./shamFactory");

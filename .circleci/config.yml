@@ -1,13 +1,13 @@
 version: 2
 jobs:
   build:
-    working_directory: ~/sham
+    working_directory: ~/sham-it
     docker:
       - image: node:7
     steps:
       - checkout
       - restore_cache:
-          key: sham-server-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
+          key: sham-it-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
       - run:
           name: Install yarn
           command: curl -o- -L https://yarnpkg.com/install.sh | bash
@@ -15,23 +15,24 @@ jobs:
           name: Install Dependencies
           command: yarn
       - save_cache:
-          key: sham-server-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
+          key: sham-it-node_modules-{{ .Branch }}-{{ checksum "yarn.lock"}}
           paths:
-            - "~/sham/node_modules"
+            - "~/sham-it/node_modules"
       - run:
           name: Lint Files
-          command: mkdir -p ~/sham/reports/ && npm run lint -- --format junit --output-file ~/sham/reports/eslint.xml
+          command: mkdir -p ~/sham-it/reports/ && npm run lint -- --format junit --output-file ~/sham-it/reports/eslint.xml
       - run:
           name: Run Tests
           command: npm test -- --coverage -i && mv test-report.xml reports/jest-junit.xml
       - store_test_results:
-          path: ~/sham/reports
+          path: ~/sham-it/reports
       - store_artifacts:
-          path: ~/sham/coverage
+          path: ~/sham-it/coverage
           destination: coverage
       - run:
           name: Publish to CodeCov
           command: bash <(curl -s https://codecov.io/bash)
-      - run:
-          name: Semantic Release
-          command: DEBUG=condition npm_config_loglevel=verbose npm run semantic-release || true
+#     Disabled semantic release until the rename is complete
+#      - run:
+#          name: Semantic Release
+#          command: DEBUG=condition npm_config_loglevel=verbose npm run semantic-release || true
