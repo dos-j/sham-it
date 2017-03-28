@@ -33,5 +33,5 @@ jobs:
           name: Publish to CodeCov
           command: bash <(curl -s https://codecov.io/bash)
       - run:
-        name: Semantic Release
-        command: DEBUG=condition npm_config_loglevel=verbose npm run semantic-release || true
+          name: Semantic Release
+          command: DEBUG=condition npm_config_loglevel=verbose npm run semantic-release || true
