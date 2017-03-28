@@ -1,5 +1,5 @@
 // Step 1: Import sham-it
-const shamIt = require("../sham");
+const shamIt = require("../index");
 
 (async function() {
   // Step 2: Create a new sham using the defaults
