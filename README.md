@@ -3,7 +3,7 @@
 [![Build Status](https://circleci.com/gh/dos-j/sham-it.svg?style=shield&circle-token=:circle-token)](https://circleci.com/gh/dos-j/sham-it) [![Coverage](https://img.shields.io/codecov/c/github/dos-j/sham-it.svg)](https://codecov.io/gh/dos-j/sham-it) [![semantic-release](https://img.shields.io/badge/%20%20%F0%9F%93%A6%F0%9F%9A%80-semantic--release-e10079.svg)](https://github.com/semantic-release/semantic-release)
  [![dependencies](https://david-dm.org/dos-j/sham-it.svg)](https://david-dm.org/dos-j/sham-it) [![devDependencies](https://david-dm.org/dos-j/sham-it/dev-status.svg)](https://david-dm.org/dos-j/sham-it#info=devDependencies) [![Known Vulnerabilities](https://snyk.io/test/github/dos-j/sham-it/badge.svg)](https://snyk.io/test/github/dos-j/sham-it) [![License](	https://img.shields.io/github/license/dos-j/sham-it.svg)](https://github.com/dos-j/sham-it/blob/master/LICENSE)
 
-Sham-Server allows you to easily create mock web services that you can use within your tests.
+Sham-It allows you to easily create mock web services that you can use within your tests.
 
 When you need to test a web service which depends on third party web services you are forced to choose between loading the entire platform, creating complicated stub services or mocking out the parts of your codebase that call external services.
 
