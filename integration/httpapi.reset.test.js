@@ -6,8 +6,6 @@ let sham;
 
 describe("Integration: HTTP API POST /$reset", () => {
   beforeEach(async () => {
-    if (sham) sham.close();
-
     sham = await shamIt();
 
     sham.when(
@@ -33,6 +31,9 @@ describe("Integration: HTTP API POST /$reset", () => {
       },
       { body: "f" }
     );
+  });
+  afterEach(() => {
+    sham.close();
   });
 
   test("it should clear all of the logged calls", async () => {
