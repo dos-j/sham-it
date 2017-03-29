@@ -45,7 +45,11 @@
     ]
   },
   "jest": {
-    "testResultsProcessor": "./node_modules/jest-junit-reporter"
+    "testResultsProcessor": "./node_modules/jest-junit-reporter",
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/examples"
+    ]
   },
   "release": {
     "verifyConditions": "condition-circle"
