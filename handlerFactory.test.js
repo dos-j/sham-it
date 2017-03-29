@@ -14,7 +14,7 @@ beforeEach(() => {
 
 describe("Returning a Default Reply", () => {
   test("it should respond with the default reply if there are no mocked routes", async () => {
-    handler({}, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(404, {
       "Content-Type": "text/plain"
@@ -29,7 +29,7 @@ describe("Returning a Default Reply", () => {
       body: "Tadaaaa!"
     });
 
-    handler({}, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(418, {
       "Content-Type": "text/fancy"
@@ -44,8 +44,7 @@ describe("Returning a Default Reply", () => {
       body: { not: "matched" }
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).toHaveBeenCalledWith(JSON.stringify({ not: "matched" }));
   });
@@ -66,8 +65,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(mock.status, mock.headers);
 
@@ -87,8 +85,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(200, mock.headers);
 
@@ -106,8 +103,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(mock.status, {
       "Content-Type": "application/json"
@@ -122,7 +118,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    handler({}, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).toHaveBeenCalledWith(undefined);
   });
@@ -139,8 +135,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).toHaveBeenCalledWith(JSON.stringify(mock.body));
   });
@@ -155,8 +150,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.writeHead).toHaveBeenCalledWith(404, {
       "Content-Type": "text/plain"
@@ -177,7 +171,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
+    const req = { url: "http://sham/test" };
     handler(req, res);
 
     expect(matcher).toHaveBeenCalledWith(req);
@@ -203,8 +197,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(matcherC).toHaveBeenCalled();
     expect(matcherB).not.toHaveBeenCalled();
@@ -233,8 +226,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(matcherC).toHaveBeenCalled();
     expect(matcherB).toHaveBeenCalled();
@@ -263,8 +255,7 @@ describe("Configuring mocked routes", () => {
       calls: []
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(matcherC).toHaveBeenCalled();
     expect(matcherB).toHaveBeenCalled();
@@ -285,7 +276,7 @@ describe("Configuring mocked routes", () => {
         calls: []
       });
 
-      handler({}, res);
+      handler({ url: "http://sham/test" }, res);
 
       expect(res.writeHead).toHaveBeenCalledWith(500, {
         "Content-Type": "text/plain"
@@ -312,12 +303,11 @@ describe("Mocks that expire", () => {
       times: 1
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).lastCalledWith("Test");
 
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).lastCalledWith("Not Found");
   });
@@ -331,16 +321,15 @@ describe("Mocks that expire", () => {
       times: 2
     });
 
-    const req = {};
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).lastCalledWith("Test");
 
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).lastCalledWith("Test");
 
-    handler(req, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(res.end).lastCalledWith("Not Found");
   });
@@ -350,18 +339,18 @@ describe("Call list", () => {
   test("it should log each call to the handler", () => {
     expect(handler.calls).toHaveLength(0);
 
-    handler({}, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(handler.calls).toHaveLength(1);
 
-    handler({}, res);
-    handler({}, res);
+    handler({ url: "http://sham/test" }, res);
+    handler({ url: "http://sham/test" }, res);
 
     expect(handler.calls).toHaveLength(3);
   });
 
   test("it should include the request in the call", () => {
-    const req = { uri: "a/b/c" };
+    const req = { url: "http://sham/a/b/c" };
     handler(req, res);
 
     expect(handler.calls).toContainEqual(
@@ -370,7 +359,7 @@ describe("Call list", () => {
   });
 
   test("it should not included a matched object if there were no matches", () => {
-    const req = { uri: "a/b/c" };
+    const req = { url: "http://sham/a/b/c" };
     handler(req, res);
 
     expect(handler.calls).not.toContainEqual(
@@ -385,7 +374,7 @@ describe("Call list", () => {
       calls: []
     });
 
-    const req = { uri: "a/b/c" };
+    const req = { url: "http://sham/a/b/c" };
     handler(req, res);
 
     expect(handler.calls).toContainEqual(
@@ -406,7 +395,7 @@ describe("Call list", () => {
       };
       handler.matchers.unshift(matcherItem);
 
-      const req = { uri: "a/b/c" };
+      const req = { url: "http://sham/a/b/c" };
       handler(req, res);
 
       expect(handler.calls).toContainEqual(
@@ -425,7 +414,7 @@ describe("Call list", () => {
     };
     handler.matchers.unshift(matcherItem);
 
-    const req = { uri: "a/b/c" };
+    const req = { url: "http://sham/a/b/c" };
     handler(req, res);
 
     expect(matcherItem.calls).toContainEqual(
@@ -446,7 +435,7 @@ describe("Call list", () => {
       };
       handler.matchers.unshift(matcherItem);
 
-      const req = { uri: "a/b/c" };
+      const req = { url: "http://sham/a/b/c" };
       handler(req, res);
 
       expect(matcherItem.errors).toContainEqual(
@@ -470,7 +459,7 @@ describe("Call list", () => {
       };
       handler.matchers.unshift(matcherItem);
 
-      const req = { uri: "a/b/c" };
+      const req = { url: "http://sham/a/b/c" };
       handler(req, res);
       handler(req, res);
 
@@ -478,5 +467,65 @@ describe("Call list", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+describe("HTTP API", () => {
+  describe("POST /$reset", () => {
+    let matcher;
+    beforeEach(() => {
+      matcher = jest.fn();
+
+      handler.matchers.unshift({ matcher, calls: [] });
+      handler.matchers.unshift({ matcher, calls: [] });
+      handler.matchers.unshift({ matcher, calls: [] });
+
+      handler.calls.push({});
+      handler.calls.push({});
+      handler.calls.push({});
+      handler.calls.push({});
+      handler.calls.push({});
+    });
+
+    test("it should clear all of the matchers", () => {
+      expect(handler.matchers).toHaveLength(3);
+
+      handler({ method: "POST", url: "/$reset" }, res);
+
+      expect(handler.matchers).toHaveLength(0);
+    });
+
+    test("it should clear all of the logged calls", () => {
+      expect(handler.calls).toHaveLength(5);
+
+      handler({ method: "POST", url: "/$reset" }, res);
+
+      expect(handler.calls).toHaveLength(0);
+    });
+
+    test("it should not call any matchers", () => {
+      handler({ url: "http://sham/test" }, res);
+
+      expect(matcher).toHaveBeenCalled();
+      matcher.mockClear();
+
+      handler({ method: "POST", url: "/$reset" }, res);
+
+      expect(matcher).not.toHaveBeenCalled();
+    });
+
+    test("it should respond with 204 No Content", () => {
+      handler({ method: "POST", url: "http://sham/$reset" }, res);
+
+      expect(res.writeHead).toHaveBeenCalledWith(204);
+      expect(res.end).toHaveBeenCalledWith();
+    });
+
+    test("it should only respond with 204 No Content if the method is POST", () => {
+      handler({ method: "GET", url: "http://sham/$reset" }, res);
+
+      expect(res.writeHead).not.toHaveBeenCalledWith(204);
+      expect(res.end).not.toHaveBeenCalledWith();
+    });
   });
 });

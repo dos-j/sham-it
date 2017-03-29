@@ -1,8 +1,19 @@
+const url = require("url");
+
 function handlerFactory(defaultReply = {}) {
   let matchers = [];
   const calls = [];
 
   const handler = (req, res) => {
+    const requestUrl = url.parse(req.url);
+    if (req.method === "POST" && requestUrl.pathname === "/$reset") {
+      matchers.length = 0;
+      calls.length = 0;
+
+      res.writeHead(204);
+      return res.end();
+    }
+
     const call = { request: req };
     let matcherItem;
     try {
