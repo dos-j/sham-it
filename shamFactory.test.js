@@ -157,6 +157,7 @@ describe("Configuring mocked routes", () => {
     server.when(matcher, mock);
 
     expect(handlerFactory.__handler.matchers).toContainEqual({
+      id: expect.any(Number),
       matcher,
       mock,
       calls: []
@@ -176,8 +177,51 @@ describe("Configuring mocked routes", () => {
     const result = server.when(matcher, mock);
 
     expect(result).toEqual({
+      id: expect.any(Number),
       matcher,
       mock,
+      calls: []
+    });
+  });
+
+  test("It should set a default status if one is ommitted", () => {
+    const matcher = () => true;
+    const mock = {
+      headers: {
+        "Content-Type": "text/plain"
+      },
+      body: "Test"
+    };
+    server.when(matcher, mock);
+
+    expect(handlerFactory.__handler.matchers).toContainEqual({
+      id: expect.any(Number),
+      matcher,
+      mock: {
+        status: 200,
+        headers: mock.headers,
+        body: mock.body
+      },
+      calls: []
+    });
+  });
+
+  test("It should set default headers if they are ommitted", () => {
+    const matcher = () => true;
+    const mock = {
+      status: 200,
+      body: "Test"
+    };
+    server.when(matcher, mock);
+
+    expect(handlerFactory.__handler.matchers).toContainEqual({
+      id: expect.any(Number),
+      matcher,
+      mock: {
+        status: mock.status,
+        headers: { "Content-Type": "application/json" },
+        body: mock.body
+      },
       calls: []
     });
   });
@@ -203,9 +247,24 @@ describe("Configuring mocked routes", () => {
     server.when(matcherC, { body: { c: 3 } });
 
     expect(handlerFactory.__handler.matchers).toEqual([
-      { matcher: matcherC, mock: expect.any(Object), calls: [] },
-      { matcher: matcherB, mock: expect.any(Object), calls: [] },
-      { matcher: matcherA, mock: expect.any(Object), calls: [] }
+      {
+        id: expect.any(Number),
+        matcher: matcherC,
+        mock: expect.any(Object),
+        calls: []
+      },
+      {
+        id: expect.any(Number),
+        matcher: matcherB,
+        mock: expect.any(Object),
+        calls: []
+      },
+      {
+        id: expect.any(Number),
+        matcher: matcherA,
+        mock: expect.any(Object),
+        calls: []
+      }
     ]);
   });
 
@@ -216,8 +275,9 @@ describe("Configuring mocked routes", () => {
 
     expect(handlerFactory.__handler.matchers).toEqual([
       {
+        id: expect.any(Number),
         matcher,
-        mock,
+        mock: expect.objectContaining(mock),
         calls: [],
         times: 1
       }

@@ -72,46 +72,6 @@ describe("Configuring mocked routes", () => {
     expect(res.end).toHaveBeenCalledWith(mock.body);
   });
 
-  test("it should assume you want a status of 200 if you don't specify it", () => {
-    const mock = {
-      headers: {
-        "Content-Type": "text/plain"
-      },
-      body: "Test"
-    };
-    handler.matchers.unshift({
-      matcher: () => true,
-      mock,
-      calls: []
-    });
-
-    handler({ url: "http://sham/test" }, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(200, mock.headers);
-
-    expect(res.end).toHaveBeenCalledWith(mock.body);
-  });
-
-  test("it should assume you want a Content-Type of 'application/json' if you don't specify it", () => {
-    const mock = {
-      status: 200,
-      body: "{}"
-    };
-    handler.matchers.unshift({
-      matcher: () => true,
-      mock,
-      calls: []
-    });
-
-    handler({ url: "http://sham/test" }, res);
-
-    expect(res.writeHead).toHaveBeenCalledWith(mock.status, {
-      "Content-Type": "application/json"
-    });
-
-    expect(res.end).toHaveBeenCalledWith(mock.body);
-  });
-
   test("it should handle a bodyless mock", () => {
     handler.matchers.unshift({
       matcher: () => true,
@@ -490,7 +450,7 @@ describe("HTTP API", () => {
     test("it should clear all of the matchers", () => {
       expect(handler.matchers).toHaveLength(3);
 
-      handler({ method: "POST", url: "/$reset" }, res);
+      handler({ method: "POST", url: "http://sham/$reset" }, res);
 
       expect(handler.matchers).toHaveLength(0);
     });
@@ -498,7 +458,7 @@ describe("HTTP API", () => {
     test("it should clear all of the logged calls", () => {
       expect(handler.calls).toHaveLength(5);
 
-      handler({ method: "POST", url: "/$reset" }, res);
+      handler({ method: "POST", url: "http://sham/$reset" }, res);
 
       expect(handler.calls).toHaveLength(0);
     });
@@ -509,7 +469,7 @@ describe("HTTP API", () => {
       expect(matcher).toHaveBeenCalled();
       matcher.mockClear();
 
-      handler({ method: "POST", url: "/$reset" }, res);
+      handler({ method: "POST", url: "http://sham/$reset" }, res);
 
       expect(matcher).not.toHaveBeenCalled();
     });
@@ -526,6 +486,97 @@ describe("HTTP API", () => {
 
       expect(res.writeHead).not.toHaveBeenCalledWith(204);
       expect(res.end).not.toHaveBeenCalledWith();
+    });
+  });
+
+  describe("GET /$matchers", () => {
+    test("it should return an empty array if there are no matchers", () => {
+      expect(handler.matchers).toHaveLength(0);
+
+      handler({ method: "GET", url: "http://sham/$matchers" }, res);
+
+      expect(res.writeHead).toHaveBeenCalledWith(200, {
+        "Content-Type": "application/json"
+      });
+      expect(res.end).toHaveBeenCalledWith("[]");
+    });
+
+    test("it should return a single matcher", () => {
+      const matcher = {
+        id: 1,
+        matcher: () => true,
+        mock: {
+          body: "a"
+        },
+        times: 3
+      };
+      handler.matchers.unshift(matcher);
+
+      handler({ method: "GET", url: "http://sham/$matchers" }, res);
+
+      expect(res.end).toHaveBeenCalledWith(
+        JSON.stringify([
+          {
+            id: matcher.id,
+            when: matcher.matcher.toString(),
+            respond: matcher.mock,
+            times: matcher.times
+          }
+        ])
+      );
+    });
+
+    test("it should return multiple matchers", () => {
+      const matcherA = {
+        id: 1,
+        matcher: () => true,
+        mock: {
+          body: "a"
+        },
+        times: 3
+      };
+      const matcherB = {
+        id: 2,
+        matcher: () => false,
+        mock: {
+          body: "b"
+        }
+      };
+      const matcherC = {
+        id: 3,
+        matcher: function() {
+          return true;
+        },
+        mock: {
+          body: "c"
+        }
+      };
+      handler.matchers.unshift(matcherA);
+      handler.matchers.unshift(matcherB);
+      handler.matchers.unshift(matcherC);
+
+      handler({ method: "GET", url: "http://sham/$matchers" }, res);
+
+      expect(res.end).toHaveBeenCalledWith(
+        JSON.stringify([
+          {
+            id: matcherC.id,
+            when: matcherC.matcher.toString(),
+            respond: matcherC.mock
+          },
+          {
+            id: matcherB.id,
+            when: matcherB.matcher.toString(),
+            respond: matcherB.mock
+          },
+          {
+            id: matcherA.id,
+            when: matcherA.matcher.toString(),
+            respond: matcherA.mock,
+            times: matcherA.times
+          }
+        ])
+      );
     });
   });
 });
