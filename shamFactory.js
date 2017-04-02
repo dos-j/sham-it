@@ -11,6 +11,7 @@ async function shamFactory({ ip = "0.0.0.0", port, defaultReply } = {}) {
   }
 
   const handler = handlerFactory(defaultReply);
+  let lastUniqueId = 0;
 
   const server = http.createServer(handler);
 
@@ -25,8 +26,21 @@ async function shamFactory({ ip = "0.0.0.0", port, defaultReply } = {}) {
     handler.calls.length = 0;
   }
 
-  function when(matcher = required("matcher"), mock = required("mock"), times) {
-    const item = { matcher, mock, calls: [] };
+  function when(
+    matcher = required("matcher"),
+    {
+      status = 200,
+      headers = { "Content-Type": "application/json" },
+      body
+    } = required("mock"),
+    times
+  ) {
+    const item = {
+      id: ++lastUniqueId,
+      matcher,
+      mock: { status, headers, body },
+      calls: []
+    };
 
     if (typeof times !== "undefined") {
       if (!(+times >= 1)) {

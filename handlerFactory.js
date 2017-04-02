@@ -14,6 +14,27 @@ function handlerFactory(defaultReply = {}) {
       return res.end();
     }
 
+    if (req.method === "GET" && requestUrl.pathname === "/$matchers") {
+      res.writeHead(200, { "Content-Type": "application/json" });
+      return res.end(
+        JSON.stringify(
+          matchers.map(item => {
+            const $matcher = {
+              id: item.id,
+              when: item.matcher.toString(),
+              respond: item.mock
+            };
+
+            if (item.hasOwnProperty("times")) {
+              $matcher.times = item.times;
+            }
+
+            return $matcher;
+          })
+        )
+      );
+    }
+
     const call = { request: req };
     let matcherItem;
     try {
@@ -21,8 +42,8 @@ function handlerFactory(defaultReply = {}) {
         const {
           matcher,
           mock: {
-            status = 200,
-            headers = { "Content-Type": "application/json" },
+            status,
+            headers,
             body
           } = {}
         } = matcherItem;
