@@ -293,6 +293,23 @@ describe("Mocks that expire", () => {
 
     expect(res.end).lastCalledWith("Not Found");
   });
+
+  test("it should not delete expired matchers", () => {
+    const matcher = jest.fn(() => true);
+    handler.matchers.unshift({
+      matcher,
+      mock: { body: "Test" },
+      calls: [],
+      times: 1
+    });
+
+    expect(handler.matchers).toHaveLength(1);
+
+    handler({ url: "http://sham/test" }, res);
+    handler({ url: "http://sham/test" }, res);
+
+    expect(handler.matchers).toHaveLength(1);
+  });
 });
 
 describe("Call list", () => {

@@ -129,4 +129,34 @@ describe("Integration: HTTP API GET /$matchers", () => {
       ])
     );
   });
+
+  test("it should still return a matcher which has returned it's maximum number of times", async () => {
+    const matcher = sham.when(() => true, { body: "a" }, 1);
+
+    let response = await fetch(`http://localhost:${sham.port}/$matchers`);
+    let body = await response.json();
+
+    expect(response).toHaveProperty("status", 200);
+    expect(body).toHaveLength(1);
+    expect(body).toContainEqual({
+      id: matcher.id,
+      when: matcher.matcher.toString(),
+      respond: matcher.mock,
+      times: 1
+    });
+
+    await fetch(`http://localhost:${sham.port}/test`);
+
+    response = await fetch(`http://localhost:${sham.port}/$matchers`);
+    body = await response.json();
+
+    expect(response).toHaveProperty("status", 200);
+    expect(body).toHaveLength(1);
+    expect(body).toContainEqual({
+      id: matcher.id,
+      when: matcher.matcher.toString(),
+      respond: matcher.mock,
+      times: 0
+    });
+  });
 });

@@ -1,7 +1,7 @@
 const url = require("url");
 
 function handlerFactory(defaultReply = {}) {
-  let matchers = [];
+  const matchers = [];
   const calls = [];
 
   const handler = (req, res) => {
@@ -38,7 +38,10 @@ function handlerFactory(defaultReply = {}) {
     const call = { request: req };
     let matcherItem;
     try {
-      for (matcherItem of matchers) {
+      for (matcherItem of matchers.filter(
+        matcherItem =>
+          !matcherItem.hasOwnProperty("times") || matcherItem.times > 0
+      )) {
         const {
           matcher,
           mock: {
@@ -91,7 +94,6 @@ function handlerFactory(defaultReply = {}) {
       res.writeHead(500, { "Content-Type": "text/plain" });
       res.end("Internal Server Error");
     } finally {
-      matchers = matchers.filter(({ times }) => times !== 0);
       calls.push(call);
     }
   };
