@@ -4,35 +4,75 @@ function handlerFactory(defaultReply = {}) {
   const matchers = [];
   const calls = [];
 
+  function toDto(item) {
+    const $matcher = {
+      id: item.id,
+      when: item.matcher.toString(),
+      respond: item.mock
+    };
+
+    if (item.hasOwnProperty("times")) {
+      $matcher.times = item.times;
+    }
+
+    return $matcher;
+  }
+
+  function resetHandler() {
+    matchers.length = 0;
+    calls.length = 0;
+
+    return {
+      status: 204,
+      headers: {},
+      body: undefined
+    };
+  }
+
+  function getAllMatchersHandler() {
+    return {
+      body: matchers.map(toDto)
+    };
+  }
+
   const handler = (req, res) => {
+    function reply(
+      { status = 200, headers = { "Content-Type": "application/json" }, body }
+    ) {
+      res.writeHead(status, headers);
+
+      if (body && typeof body === "object") {
+        res.end(JSON.stringify(body));
+      } else if (typeof body === "undefined") {
+        res.end();
+      } else {
+        res.end(body);
+      }
+    }
     const requestUrl = url.parse(req.url);
     if (req.method === "POST" && requestUrl.pathname === "/$reset") {
-      matchers.length = 0;
-      calls.length = 0;
-
-      res.writeHead(204);
-      return res.end();
+      return reply(resetHandler());
     }
 
     if (req.method === "GET" && requestUrl.pathname === "/$matchers") {
-      res.writeHead(200, { "Content-Type": "application/json" });
-      return res.end(
-        JSON.stringify(
-          matchers.map(item => {
-            const $matcher = {
-              id: item.id,
-              when: item.matcher.toString(),
-              respond: item.mock
-            };
+      return reply(getAllMatchersHandler());
+    }
 
-            if (item.hasOwnProperty("times")) {
-              $matcher.times = item.times;
-            }
+    if (req.method === "GET" && requestUrl.pathname.startsWith("/$matchers/")) {
+      const matcherId = requestUrl.pathname.substr("/$matchers/".length);
 
-            return $matcher;
-          })
-        )
-      );
+      let matcher;
+      if ((matcher = matchers.find(matcher => `${matcher.id}` === matcherId))) {
+        return reply({
+          body: toDto(matcher)
+        });
+      }
+
+      return reply({
+        status: 404,
+        headers: { "Content-Type": "text/plain" },
+        body: `Matcher with Id '${matcherId}' could not be found`
+      });
     }
 
     const call = { request: req };
@@ -57,13 +97,11 @@ function handlerFactory(defaultReply = {}) {
             matcherItem.times--;
           }
 
-          res.writeHead(status, headers);
-
-          if (body && typeof body === "object") {
-            res.end(JSON.stringify(body));
-          } else {
-            res.end(body);
-          }
+          reply({
+            status,
+            headers,
+            body
+          });
 
           matcherItem.calls.push({ request: req });
 
@@ -71,17 +109,11 @@ function handlerFactory(defaultReply = {}) {
         }
       }
 
-      res.writeHead(
-        defaultReply.status || 404,
-        defaultReply.headers || { "Content-Type": "text/plain" }
-      );
-
-      const defaultBody = defaultReply.body || "Not Found";
-      if (defaultBody && typeof defaultBody === "object") {
-        res.end(JSON.stringify(defaultBody));
-      } else {
-        res.end(defaultBody);
-      }
+      reply({
+        status: defaultReply.status || 404,
+        headers: defaultReply.headers || { "Content-Type": "text/plain" },
+        body: defaultReply.body || "Not Found"
+      });
     } catch (ex) {
       console.error(`Critical Error: ${ex}`, ex);
 
@@ -91,8 +123,11 @@ function handlerFactory(defaultReply = {}) {
       matcherItem.errors = matcherItem.errors || [];
       matcherItem.errors.push({ request: req, error: ex });
 
-      res.writeHead(500, { "Content-Type": "text/plain" });
-      res.end("Internal Server Error");
+      reply({
+        status: 500,
+        headers: { "Content-Type": "text/plain" },
+        body: "Internal Server Error"
+      });
     } finally {
       calls.push(call);
     }

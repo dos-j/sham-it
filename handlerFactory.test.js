@@ -80,7 +80,7 @@ describe("Configuring mocked routes", () => {
 
     handler({ url: "http://sham/test" }, res);
 
-    expect(res.end).toHaveBeenCalledWith(undefined);
+    expect(res.end).toHaveBeenCalledWith();
   });
 
   test("it should automatically stringify the body", () => {
@@ -494,14 +494,14 @@ describe("HTTP API", () => {
     test("it should respond with 204 No Content", () => {
       handler({ method: "POST", url: "http://sham/$reset" }, res);
 
-      expect(res.writeHead).toHaveBeenCalledWith(204);
+      expect(res.writeHead).toHaveBeenCalledWith(204, {});
       expect(res.end).toHaveBeenCalledWith();
     });
 
     test("it should only respond with 204 No Content if the method is POST", () => {
       handler({ method: "GET", url: "http://sham/$reset" }, res);
 
-      expect(res.writeHead).not.toHaveBeenCalledWith(204);
+      expect(res.writeHead).not.toHaveBeenCalledWith(204, {});
       expect(res.end).not.toHaveBeenCalledWith();
     });
   });
