@@ -48,7 +48,7 @@ describe("Example testing a webservice which depends on another webservice being
     expect(res.text).toEqual("Invalid");
   });
 
-  afterEach(async () => await validateSham.clear());
+  afterEach(async () => await validateSham.reset());
 
   afterAll(async () => await validateSham.close());
 });
