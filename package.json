@@ -21,6 +21,7 @@
   "homepage": "https://github.com/dos-j/sham-it#readme",
   "dependencies": {
     "jest": "^20.0.0",
+    "ms": "^2.0.0",
     "node-fetch": "^1.6.3",
     "serialize-error": "^2.1.0",
     "shortid": "^2.2.8"
