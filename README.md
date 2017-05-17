@@ -40,46 +40,40 @@ const shamIt = require("sham-it");
     ip: "0.0.0.0", // 0.0.0.0 is the default
 
     // port is the Port that the sham can be access on
-    port: 9001, // If not specified portfinder (https://www.npmjs.com/package/portfinder) will find you the next available port.
+    port: 9001, // If not specified then one will be chosen automatically
 
     // defaultReply is used when a mocked route isn't matched
     defaultReply: {
       status: 404, // 404 is the default status of the defaultReply
 
-      headers: { "Content-Type": "text/plain" }, // "Content-Type": "text/plain" is the default header of the defaultReply
+      headers: { "Content-Type": "text/plain" }, // "Content-Type": "text/plain"
+      // is the default header of the defaultReply
 
       body: "Not Found" // "Not Found" is the default body of the default reply
     }
   });
 
   // Step 3: Check the properties available on the sham
-  console.log(`ip: ${sham.ip}`);
-  console.log(`port: ${sham.port}`);
-  console.log(`listening: ${sham.listening}`);
-  console.log(`calls: ${sham.calls.length}`);
+  console.log(`uri: ${sham.uri}`);
 
   // Step 4: Mock out an endpoint
-  const matcher = sham.when(
-    // matcher function that is checked. (Required, will throw an error if not supplied)
-    req => {
-      // You could use the node built-in url module to parse the request
-      const {
-        pathname
-      } = require("url").parse(req.url);
+  const matcher = await sham.addMatcher({
+    // when is a function for building a matcher. (Required, will throw an error if not supplied)
+    when: ({ and, equals }) =>
+      and(equals("method", "GET"), equals("pathname", "/a/b/c")),
 
-      return req.method === "GET" && pathname === "/a/b/c";
-    },
-    // Mocked response that's returned if the matcher function returns true (Required, will throw an error if not supplied)
-    {
+    // Mocked response that's returned if the matcher function returns true
+    // (Required, will throw an error if not supplied)
+    respond: {
       status: 200, // Optional: Defaults to 200
       headers: { "Content-Type": "application/json" }, // Optional: Defaults to { "Content-Type": "application/json" }
       body: { my: "data" } // If an object is supplied it is automatically stringified using JSON.stringify(...)
     }
 
-    // Optional: You can also pass in a 3rd parameter for the number of times the matcher should match. After which it will be deleted.
-    // If no value is specified then the matcher will match an unlimited number of times.
-  );
-  console.log(matcher); // { matcher: [Function], mock: { status: ..., headers: ..., body: ... }, calls: [] }
+    // Optional: You can also pass in a 3rd parameter for the number of times the matcher should match.
+    // After which it will be deleted, if no value is specified then the matcher will match an unlimited number of times.
+  });
+  console.log(matcher); // { id: [String], matcher: [Object], mock: { status: [Number], headers: [Object], body: [Object] } }
 
   // Step 5: Send a request to the sham
   const request = require("request");
@@ -88,7 +82,7 @@ const shamIt = require("sham-it");
   await new Promise((resolve, reject) =>
     request(
       {
-        uri: `http://localhost:${sham.port}/a/b/c`,
+        uri: `${sham.uri}/a/b/c`,
         json: true
       },
       (err, res, body) => {
@@ -97,39 +91,34 @@ const shamIt = require("sham-it");
         const statusCode = res.statusCode;
         const contentType = res.headers["content-type"];
 
-        console.log(statusCode === matcher.mock.status); // true
-        console.log(contentType === matcher.mock.headers["Content-Type"]); // true
+        console.log(statusCode === matcher.respond.status); // true
+        console.log(contentType === matcher.respond.headers["Content-Type"]); // true
 
-        console.log(body.my === matcher.mock.body.my); // true
+        console.log(body.my === matcher.respond.body.my); // true
 
         resolve(body);
       }
     ));
-  // You can also now see the call in either the matcher's list of calls or the sham's list of calls
-  console.log(matcher.calls.length); // 1
-  console.log(sham.calls.length); // 1
 
-  // In your tests you can expect that sham received the correct request by doing (jest example)
+  // You can also now see the call by calling getRequest();
+  console.log(await sham.getRequests()); // [{ request: {...}, matcher: {...}, response: {...} }]
 
-  // expect(matcher.calls).toContainEqual(
-  //    expect.objectContaining({
-  //        request: expect.objectContaining({
-  //            method: "GET",
-  //            url: "/a/b/c"
-  //        })
-  //    })
-  //);
+  // Step 7: In your tests you can expect that the sham received the correct request by doing
+  expect(
+    await sham.hasBeenCalledWith(({ and, equals }) =>
+      and(equals("method", "GET"), equals("pathname", "/a/b/c")))
+  ).toBe(true);
+  // If the expectation fails you will receive full details about the reason why similar to when
+  // you call expect(jest.fn()).toHaveBeenCalledWith(...)
 
-  // Step 7: Reset the mocked routes and calls
-  sham.reset();
-  console.log(sham.calls); // 0
+  // Step 8: Reset the mocked routes and calls
+  await sham.reset();
+  console.log(await sham.getRequests()); // []
 
-  // Step 8: Close the sham to stop it listening
-  sham.close();
-  shamWithOptions.close();
-  console.log(`listening: ${sham.listening}`);
+  // Step 9: Close the sham to stop it listening
+  await sham.close();
+  await shamWithOptions.close();
 })();
-
 ```
 
 ## Examples

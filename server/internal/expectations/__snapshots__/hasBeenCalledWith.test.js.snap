@@ -1,0 +1,20 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: hasBeenCalledWith the error message should match the snapshot 1`] = `
+Object {
+  "body": "Expected sham to have been called with:
+  {
+    \\"op\\": \\"==\\",
+    \\"prop\\": \\"pathname\\",
+    \\"value\\": \\"/test4\\"
+  }
+But it was called with:
+  GET /test1?a=1234
+    accept: application/json,
+  GET /test2?a=1234
+    accept: application/json,
+  GET /test3?a=1234
+    accept: application/json",
+  "status": 417,
+}
+`;

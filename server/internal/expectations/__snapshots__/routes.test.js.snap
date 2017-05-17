@@ -1,0 +1,46 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: internal/expectations/routes it should return all of the expectation routes 1`] = `
+Array [
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$hasbeencalled\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$not\\\\/hasbeencalled\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$hasbeencalledtimes\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$not\\\\/hasbeencalledtimes\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$hasbeencalledwith\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$not\\\\/hasbeencalledwith\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$hasbeenlastcalledwith\\$/,
+    [Function],
+  ],
+  Array [
+    "POST",
+    /\\^\\\\/\\\\\\$not\\\\/hasbeenlastcalledwith\\$/,
+    [Function],
+  ],
+]
+`;

@@ -15,20 +15,22 @@ describe("Example testing a webservice which depends on another webservice being
       }
     });
 
-    validateSham.when(
-      req =>
-        req.method === "GET" &&
-        req.url === "/validate" &&
-        req.headers.authorization === "User-1",
-      { body: { valid: true } }
-    );
+    validateSham.addMatcher({
+      when: ({ and, equals }) =>
+        and(
+          equals("method", "GET"),
+          equals("pathname", "/validate"),
+          equals("headers.authorization", "User-1")
+        ),
+      respond: { body: { valid: true } }
+    });
   });
 
   beforeEach(() => {
-    app = createApp(`http://localhost:${validateSham.port}/validate`);
+    app = createApp(`${validateSham.uri}/validate`);
   });
 
-  test("Should return valid when a request is sent with the correct autorization token", async () => {
+  test("Should return valid when a request is sent with the correct authorization token", async () => {
     const res = await request(app)
       .get("/")
       .set("Authorization", "User-1")
@@ -46,5 +48,7 @@ describe("Example testing a webservice which depends on another webservice being
     expect(res.text).toEqual("Invalid");
   });
 
-  afterAll(() => validateSham.close());
+  afterEach(async () => await validateSham.clear());
+
+  afterAll(async () => await validateSham.close());
 });

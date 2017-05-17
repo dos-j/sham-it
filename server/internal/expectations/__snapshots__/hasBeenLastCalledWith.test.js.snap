@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: hasBeenLastCalledWith it should show a detailed error message including the query and state that no requests have been made 1`] = `
+Object {
+  "body": "Expected sham to have been last called with:
+  {
+    \\"op\\": \\"==\\",
+    \\"prop\\": \\"pathname\\",
+    \\"value\\": \\"/test2\\"
+  }
+But it was never called.",
+  "status": 417,
+}
+`;
+
+exports[`unit: hasBeenLastCalledWith it should show a detailed error message including the query and the last request 1`] = `
+Object {
+  "body": "Expected sham to have been last called with:
+  {
+    \\"op\\": \\"==\\",
+    \\"prop\\": \\"pathname\\",
+    \\"value\\": \\"/test2\\"
+  }
+But it was last called with:
+  GET /test3?a=1234
+    accept: application/json",
+  "status": 417,
+}
+`;

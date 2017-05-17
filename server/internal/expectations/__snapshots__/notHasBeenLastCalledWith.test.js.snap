@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: notHasBeenLastCalledWith it should show a detailed error message including the query and the last request 1`] = `
+Object {
+  "body": "Expected sham not to have been last called with:
+  {
+    \\"op\\": \\"==\\",
+    \\"prop\\": \\"pathname\\",
+    \\"value\\": \\"/test3\\"
+  }
+But it was last called with:
+  GET /test3?a=1234
+    accept: application/json",
+  "status": 417,
+}
+`;

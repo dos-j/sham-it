@@ -1,0 +1,32 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: stringifyRequest it should include a body if one was sent 1`] = `
+"
+POST /test
+  body:
+      hello world"
+`;
+
+exports[`unit: stringifyRequest it should include a querystring if there are query parameters 1`] = `
+"
+POST /test?top=100&skip=500"
+`;
+
+exports[`unit: stringifyRequest it should include the headers if they are available 1`] = `
+"
+GET /test
+  Accept: application/json"
+`;
+
+exports[`unit: stringifyRequest it should json serialize the body if it is an object 1`] = `
+"
+POST /test
+  Content-Type: application/json
+  body:
+      {\\"a\\":1}"
+`;
+
+exports[`unit: stringifyRequest it should stringify a request 1`] = `
+"
+GET /test"
+`;

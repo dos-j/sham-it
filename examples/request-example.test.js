@@ -1,50 +1,50 @@
 const shamIt = require("sham-it");
 const factory = require("./request-example");
-const url = require("url");
 
 describe("Testing an example service that uses request", () => {
   let sham;
+  let service;
+  let matcher;
+
   beforeAll(async () => {
     sham = await shamIt();
   });
 
-  beforeEach(() => {
-    service = factory(`http://localhost:${sham.port}`);
-  });
+  beforeEach(async () => {
+    service = factory(sham.uri);
 
-  test("it gets a single item from the api", async () => {
-    const matcher = sham.when(
-      req => {
-        const { pathname } = url.parse(req.url);
-
-        return req.method === "GET" && pathname === "/item/12345";
-      },
-      {
+    matcher = await sham.addMatcher({
+      when: ({ and, equals }) =>
+        and(equals("method", "GET"), equals("pathname", "/item/12345")),
+      respond: {
         body: {
           id: 12345,
           data: "TEST"
         }
       }
-    );
+    });
+  });
 
+  test("it retrieves the item from the sham", async () => {
+    await service.getItem(12345);
+
+    expect(
+      await sham.hasBeenCalledWith(({ and, equals }) =>
+        and(equals("method", "GET"), equals("pathname", "/item/12345")))
+    ).toBe(true);
+  });
+
+  test("it gets a single item from the api", async () => {
     const result = await service.getItem(12345);
 
-    expect(matcher.calls).toContainEqual(
-      expect.objectContaining({
-        request: expect.objectContaining({
-          method: "GET",
-          url: "/item/12345"
-        })
-      })
-    );
-    expect(result).toEqual(matcher.mock.body);
+    expect(result).toEqual(matcher.respond.body);
   });
 
-  afterEach(() => {
-    sham.reset();
+  afterEach(async () => {
+    await sham.reset();
   });
 
-  afterAll(() => {
-    sham.close();
+  afterAll(async () => {
+    await sham.close();
   });
 });

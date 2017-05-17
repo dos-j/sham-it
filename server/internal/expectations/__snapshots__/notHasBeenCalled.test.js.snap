@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: notHasBeenCalled the error message should match the snapshot 1`] = `
+"Expected sham not to be called but it was called with:
+  GET /test?a=1234
+    accept: application/json,
+  POST /test/1234
+    accept: application/json
+    body:
+        {\\"a\\":1234},
+  POST /test/abc
+    accept: application/json
+    body:
+        test"
+`;
