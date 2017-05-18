@@ -1,5 +1,5 @@
 const qs = require("querystring");
-const indent = require("./indentText");
+const indent = require("indent-string");
 
 function toQueryString(query) {
   const string = qs.stringify(query);

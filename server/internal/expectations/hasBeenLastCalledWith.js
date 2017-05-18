@@ -1,5 +1,5 @@
 const stringifyRequest = require("./stringifyRequest");
-const indent = require("./indentText");
+const indent = require("indent-string");
 const tryMatch = require("../tryMatchRequest");
 
 module.exports = requestStore =>
