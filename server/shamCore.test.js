@@ -104,13 +104,16 @@ describe("unit: shamCore", () => {
     });
 
     test("it should return the created", () => {
-      expect(handler(matcher)).toHaveProperty("body", matcher);
+      expect(handler(matcher)).toHaveProperty(
+        "body",
+        expect.objectContaining(matcher)
+      );
     });
 
     test("it should set the id on the matcher", () => {
-      handler(matcher);
+      const created = handler(matcher);
 
-      expect(matcher).toHaveProperty("id", shortid.__id);
+      expect(created.body).toHaveProperty("id", shortid.__id);
     });
 
     test("it should return a status of 200", () => {

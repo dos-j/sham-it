@@ -48,12 +48,17 @@ function createMatcherHandler(matcherStore) {
       };
     }
 
-    matcher.id = shortid.generate();
-    matcherStore.unshift(matcher);
+    const created = Object.assign(
+      {
+        id: shortid.generate()
+      },
+      matcher
+    );
+    matcherStore.unshift(created);
 
     return {
       status: 200,
-      body: matcher
+      body: created
     };
   };
 }
