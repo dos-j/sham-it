@@ -8,12 +8,35 @@ jest.mock("./expectations/routes", () => {
 });
 const registerExpectations = require("./expectations/routes");
 
+jest.mock("../shamCore", () => {
+  const shamCore = {
+    getAllRequestsHandler: jest.fn(() => "getAllRequestsHandler"),
+    getAllMatchersHandler: jest.fn(() => "getAllMatchersHandler"),
+    getSingleMatcherHandler: jest.fn(() => "getSingleMatcherHandler"),
+    createMatcherHandler: jest.fn(() => "createMatcherHandler"),
+    deleteMatcherHandler: jest.fn(() => "deleteMatcherHandler"),
+    resetHandler: jest.fn(() => "resetHandler"),
+    shutdownHandler: jest.fn(() => "shutdownHandler")
+  };
+  return shamCore;
+});
+const shamCore = require("../shamCore");
+
 describe("unit: internal/routes", () => {
   let routes;
   let utils;
 
   beforeEach(() => {
-    utils = { internalRoute() {} };
+    utils = {
+      internalRoute: jest.fn(
+        (method, regex, handler) => `${method} - ${regex} - ${handler}`
+      ),
+      matcherStore: [],
+      requestStore: [],
+      server: { shutdown() {} }
+    };
+
+    Object.entries(shamCore).forEach(([, func]) => func.mockClear());
 
     routes = registerRoutes(utils);
   });
@@ -23,6 +46,6 @@ describe("unit: internal/routes", () => {
   });
 
   test("it should return all of the internal routes", () => {
-    expect(routes).toEqual([...registerExpectations.__routes]);
+    expect(routes).toMatchSnapshot();
   });
 });

@@ -24,20 +24,6 @@ jest.mock("./defaultRoute", () => {
 });
 const defaultRoute = require("./defaultRoute");
 
-jest.mock("./shamCore", () => {
-  const shamCore = {
-    getAllRequestsHandler: jest.fn(),
-    getAllMatchersHandler: jest.fn(),
-    getSingleMatcherHandler: jest.fn(),
-    createMatcherHandler: jest.fn(),
-    deleteMatcherHandler: jest.fn(),
-    resetHandler: jest.fn(),
-    shutdownHandler: jest.fn()
-  };
-  return shamCore;
-});
-const shamCore = require("./shamCore");
-
 jest.mock("./internal/routes", () => {
   const register = jest.fn(() => register.__routes);
   register.__routes = ["a", "b", "c"];
@@ -56,8 +42,6 @@ describe("unit: createRouteStore", () => {
     internalRoute.mockClear();
     matcherRoute.mockClear();
     defaultRoute.mockClear();
-
-    Object.entries(shamCore).forEach(([, func]) => func.mockClear());
 
     server = { close() {} };
 

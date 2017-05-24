@@ -1,0 +1,16 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`unit: internal/routes it should return all of the internal routes 1`] = `
+Array [
+  "a",
+  "b",
+  "c",
+  "GET - /^\\\\/\\\\$matchers$/ - getAllMatchersHandler",
+  "GET - /^\\\\/\\\\$matchers\\\\/(.*)$/ - getSingleMatcherHandler",
+  "POST - /^\\\\/\\\\$matchers$/ - createMatcherHandler",
+  "DELETE - /^\\\\/\\\\$matchers\\\\/(.*)$/ - deleteMatcherHandler",
+  "GET - /^\\\\/\\\\$requests$/ - getAllRequestsHandler",
+  "POST - /^\\\\/\\\\$reset$/ - resetHandler",
+  "POST - /^\\\\/\\\\$shutdown$/ - shutdownHandler",
+]
+`;
