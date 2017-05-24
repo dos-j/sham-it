@@ -5,6 +5,7 @@ Array [
   "a",
   "b",
   "c",
+  "GET - /^\\\\/\\\\$health$/ - healthcheck",
   "GET - /^\\\\/\\\\$matchers$/ - getAllMatchersHandler",
   "GET - /^\\\\/\\\\$matchers\\\\/(.*)$/ - getSingleMatcherHandler",
   "POST - /^\\\\/\\\\$matchers$/ - createMatcherHandler",

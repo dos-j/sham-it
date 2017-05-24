@@ -9,7 +9,7 @@ describe("unit: hasBeenCalled", () => {
     handler = hasBeenCalled(requestStore);
   });
 
-  test("it should return 204 No Content if there arerequests in the requestStore", () => {
+  test("it should return 204 No Content if there are requests in the requestStore", () => {
     requestStore.push({
       request: {
         method: "GET",

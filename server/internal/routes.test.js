@@ -8,6 +8,7 @@ jest.mock("./expectations/routes", () => {
 });
 const registerExpectations = require("./expectations/routes");
 
+jest.mock("./healthcheck", () => () => "healthcheck");
 jest.mock("../shamCore", () => {
   const shamCore = {
     getAllRequestsHandler: jest.fn(() => "getAllRequestsHandler"),

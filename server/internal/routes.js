@@ -1,5 +1,6 @@
 const registerExpectations = require("./expectations/routes");
 
+const healthcheckHandler = require("./healthcheck");
 const {
   getAllRequestsHandler,
   getAllMatchersHandler,
@@ -15,6 +16,7 @@ module.exports = routeUtils => {
 
   return [
     ...registerExpectations(routeUtils),
+    internalRoute("GET", /^\/\$health$/, healthcheckHandler()),
     internalRoute("GET", /^\/\$matchers$/, getAllMatchersHandler(matcherStore)),
     internalRoute(
       "GET",

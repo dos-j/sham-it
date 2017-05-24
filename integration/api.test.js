@@ -17,6 +17,14 @@ describe("integration: api", () => {
     expect(isRunning).toBe(false);
   });
 
+  test("it should respond to healthchecks", async () => {
+    const response = await fetch(`${uri}/$health`);
+
+    expect(response).toHaveProperty("status", 200);
+    expect(response.headers.get("content-type")).toBe("text/plain");
+    expect(await response.text()).toBe("Success");
+  });
+
   describe("Returning the default reply", () => {
     test("it should return the default default reply", async () => {
       const response = await fetch(`${uri}/some/uri`);
