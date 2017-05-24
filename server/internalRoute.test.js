@@ -1,4 +1,5 @@
 const internalRoute = require("./internalRoute");
+const logger = require("../test/logger");
 
 describe("unit: internalRoute", () => {
   let method;
@@ -20,28 +21,33 @@ describe("unit: internalRoute", () => {
   });
 
   test("it should return undefined if the method does not match", () => {
-    expect(route({ method: "GET" })).toBeUndefined();
+    expect(route({ method: "GET" }, logger)).toBeUndefined();
   });
 
   test("it should return undefined if the pathname does not match the regex", () => {
-    expect(route({ method: "DELETE", pathname: "/bob" })).toBeUndefined();
+    expect(
+      route({ method: "DELETE", pathname: "/bob" }, logger)
+    ).toBeUndefined();
   });
 
   test("it should call the handler if the route matches", () => {
-    route({ method: "DELETE", pathname: "/$matchers/1234" });
+    route({ method: "DELETE", pathname: "/$matchers/1234" }, logger);
 
     expect(handler).toHaveBeenCalled();
   });
 
   test("it should call the handler with the url parameters and the body", () => {
-    route({ method: "DELETE", pathname: "/$matchers/1234", body: "body" });
+    route(
+      { method: "DELETE", pathname: "/$matchers/1234", body: "body" },
+      logger
+    );
 
     expect(handler).toHaveBeenCalledWith("1234", "body");
   });
 
   test("it should return the response from the handler", () => {
-    expect(route({ method: "DELETE", pathname: "/$matchers/1234" })).toBe(
-      response
-    );
+    expect(
+      route({ method: "DELETE", pathname: "/$matchers/1234" }, logger)
+    ).toBe(response);
   });
 });

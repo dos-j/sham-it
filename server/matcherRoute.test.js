@@ -1,7 +1,9 @@
 const matcherRoute = require("./matcherRoute");
+const logger = require("../test/logger");
 
 jest.mock("./internal/whenValidator", () =>
-  jest.fn((request, when) => when.value));
+  jest.fn((request, when) => when.value)
+);
 const whenValidator = require("./internal/whenValidator");
 
 describe("unit: matcherRoute", () => {
@@ -32,15 +34,15 @@ describe("unit: matcherRoute", () => {
   test("it should return undefined if whenValidator never returns true", () => {
     matcherB.when = false;
 
-    expect(route(request)).toBeUndefined();
+    expect(route(request, logger)).toBeUndefined();
   });
 
   test("it should return the respond object for the first matcher which validates", () => {
-    expect(route(request)).toBe(matcherB.respond);
+    expect(route(request, logger)).toBe(matcherB.respond);
   });
 
   test("it should stop checking matchers when one validates", () => {
-    route(request);
+    route(request, logger);
 
     expect(whenValidator).toHaveBeenCalledWith(request, matcherA.when);
     expect(whenValidator).toHaveBeenCalledWith(request, matcherB.when);
@@ -48,7 +50,7 @@ describe("unit: matcherRoute", () => {
   });
 
   test("it should add the request to the requestStore", () => {
-    route(request);
+    route(request, logger);
 
     expect(requestStore).toContainEqual({
       request,
@@ -65,7 +67,7 @@ describe("unit: matcherRoute", () => {
 
     let error;
     try {
-      route(request);
+      route(request, logger);
     } catch (ex) {
       error = ex;
     }
@@ -79,19 +81,19 @@ describe("unit: matcherRoute", () => {
   test("it should not match a matcher that has expired", () => {
     matcherB.times = 0;
 
-    expect(route(request)).toBeUndefined();
+    expect(route(request, logger)).toBeUndefined();
   });
 
   test("it should decrement the times property when a matcher matches and the times property exists", () => {
     matcherB.times = 2;
 
-    expect(route(request)).toBe(matcherB.respond);
+    expect(route(request, logger)).toBe(matcherB.respond);
 
     expect(matcherB).toHaveProperty("times", 1);
   });
 
   test("it should not decrement the times property if the times propery doesn't exist", () => {
-    expect(route(request)).toBe(matcherB.respond);
+    expect(route(request, logger)).toBe(matcherB.respond);
 
     expect(matcherB).not.toHaveProperty("times");
   });

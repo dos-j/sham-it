@@ -1,12 +1,12 @@
 const shamIt = require("sham-it");
 const fetch = require("node-fetch");
-const testLogger = require("../test/logger");
+const logger = require("../test/logger");
 
 describe("integration: client", () => {
   let sham;
 
   beforeAll(async () => {
-    sham = await shamIt({ logger: testLogger });
+    sham = await shamIt({ logger });
   });
   afterEach(async () => {
     await sham.reset();
@@ -21,7 +21,7 @@ describe("integration: client", () => {
 
     beforeAll(async () => {
       defaultReply = { status: 400, body: { default: "Reply" } };
-      customSham = await shamIt({ defaultReply });
+      customSham = await shamIt({ defaultReply, logger });
     });
     afterEach(async () => {
       await customSham.reset();
@@ -570,7 +570,7 @@ describe("integration: client", () => {
       await sham.close();
 
       await expect(sham.getRequests()).rejects.toBeDefined();
-      sham = await shamIt();
+      sham = await shamIt({ logger });
 
       expect(await sham.getRequests()).toEqual([]);
     });

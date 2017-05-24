@@ -1,5 +1,6 @@
 const shamIt = require("sham-it");
 const factory = require("./request-example");
+const logger = require("../test/logger");
 
 describe("Testing an example service that uses request", () => {
   let sham;
@@ -7,7 +8,7 @@ describe("Testing an example service that uses request", () => {
   let matcher;
 
   beforeAll(async () => {
-    sham = await shamIt();
+    sham = await shamIt({ logger });
   });
 
   beforeEach(async () => {
@@ -30,7 +31,8 @@ describe("Testing an example service that uses request", () => {
 
     expect(
       await sham.hasBeenCalledWith(({ and, equals }) =>
-        and(equals("method", "GET"), equals("pathname", "/item/12345")))
+        and(equals("method", "GET"), equals("pathname", "/item/12345"))
+      )
     ).toBe(true);
   });
 

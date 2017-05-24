@@ -1,6 +1,7 @@
 const shamIt = require("sham-it");
 const createApp = require("./supertest-example");
 const request = require("supertest");
+const logger = require("../test/logger");
 
 describe("Example testing a webservice which depends on another webservice being mocked by sham", () => {
   let validateSham;
@@ -12,7 +13,8 @@ describe("Example testing a webservice which depends on another webservice being
         status: 401,
         headers: { "Content-Type": "application/json" },
         body: { valid: false }
-      }
+      },
+      logger
     });
 
     validateSham.addMatcher({

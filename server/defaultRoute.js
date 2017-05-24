@@ -1,5 +1,7 @@
 module.exports = function defaultRoute(defaultReply, requestStore) {
-  return request => {
+  return (request, logger) => {
+    logger.info("Routing to default handler", { defaultReply });
+
     const response = defaultReply || {
       status: 404,
       body: "Not Found"

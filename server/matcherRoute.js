@@ -1,11 +1,13 @@
 const whenValidator = require("./internal/whenValidator");
 
 module.exports = function matcherRoute(matcherStore, requestStore) {
-  function process(request, matcher) {
+  function process(request, matcher, logger) {
     try {
       if (!whenValidator(request, matcher.when)) {
         return;
       }
+
+      logger.info("Routing to matcher", { matcher });
 
       const response = matcher.respond;
       requestStore.push({ request, matcher, response });
@@ -26,9 +28,12 @@ module.exports = function matcherRoute(matcherStore, requestStore) {
     }
   }
 
-  return request => {
+  return (request, logger) => {
     return matcherStore
       .filter(matcher => matcher.times !== 0)
-      .reduce((prev, matcher) => prev || process(request, matcher), undefined);
+      .reduce(
+        (prev, matcher) => prev || process(request, matcher, logger),
+        undefined
+      );
   };
 };

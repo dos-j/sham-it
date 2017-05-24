@@ -1,4 +1,5 @@
 const shamBuilder = require("./shamBuilder");
+const logger = require("../test/logger");
 
 jest.mock("./reply", () => {
   return jest.fn();
@@ -40,7 +41,6 @@ describe("unit: shamBuilder", () => {
   let sham;
   let server;
   let defaultReply;
-  let logger;
   beforeEach(() => {
     reply.mockClear();
     requestParser.mockClear();
@@ -56,8 +56,6 @@ describe("unit: shamBuilder", () => {
       status: 404,
       body: "Not Found"
     };
-
-    logger = { error: jest.fn() };
 
     sham = shamBuilder(server, defaultReply, logger);
   });
@@ -84,10 +82,12 @@ describe("unit: shamBuilder", () => {
       await sham(req, res);
 
       expect(createRouteStore.__routeStore[0]).toHaveBeenCalledWith(
-        requestParser.__request
+        requestParser.__request,
+        logger
       );
       expect(createRouteStore.__routeStore[1]).toHaveBeenCalledWith(
-        requestParser.__request
+        requestParser.__request,
+        logger
       );
       expect(createRouteStore.__routeStore[2]).not.toHaveBeenCalled();
     });
@@ -111,7 +111,7 @@ describe("unit: shamBuilder", () => {
       });
 
       test("it should log the error", () => {
-        expect(logger.error).toHaveBeenCalledWith(error);
+        expect(logger.error).toHaveBeenCalledWith("Critical error", { error });
       });
 
       test("it should reply with an Internal Server Error if one of the routes throws an error", async () => {
