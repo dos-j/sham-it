@@ -17,25 +17,14 @@ jest.mock("./client/shamClient", () => {
 const shamClient = require("./client/shamClient");
 
 jest.mock("./server/serverCreator", () => {
-  const close = jest.fn(() => {
-    server.listening = false;
-  });
-  const on = jest.fn();
-  const listen = jest.fn(port => {
-    server.listening = true;
-    server.__port = port || serverCreator.__port;
-    on.mock.calls
-      .filter(args => args[0] === "listening")
-      .forEach(([, func]) => func());
-  });
   const server = {
-    listen,
-    close,
-    on,
-    listening: false,
     address: () => ({ port: server.__port })
   };
-  const serverCreator = jest.fn(() => server);
+  const serverCreator = jest.fn((builder, { port }) => {
+    builder(server);
+    server.__port = port || serverCreator.__port;
+    return server;
+  });
   serverCreator.__server = server;
   serverCreator.__port = 8001;
 
@@ -54,9 +43,6 @@ const pino = require("pino");
 describe("unit: shamIt", () => {
   beforeEach(() => {
     serverCreator.mockClear();
-    serverCreator.__server.close.mockClear();
-    serverCreator.__server.listen.mockClear();
-    serverCreator.__server.on.mockClear();
     shamClient.mockClear();
     shamBuilder.mockClear();
     pino.mockClear();
@@ -66,13 +52,20 @@ describe("unit: shamIt", () => {
     test("it should ask the serverCreator to create a server", async () => {
       await shamIt();
 
-      expect(serverCreator).toHaveBeenCalled();
+      expect(serverCreator).toHaveBeenCalledWith(expect.any(Function), {
+        port: 0,
+        https: undefined
+      });
     });
 
-    test("it should ask the server to listen for requests", async () => {
+    test("it should call the shamBuilder when creating the server", async () => {
       await shamIt();
 
-      expect(serverCreator.__server.listen).toHaveBeenCalled();
+      expect(shamBuilder).toHaveBeenCalledWith(
+        serverCreator.__server,
+        undefined,
+        pino.__instance
+      );
     });
   });
 
@@ -81,11 +74,14 @@ describe("unit: shamIt", () => {
       const port = 8888;
       await shamIt({ port });
 
-      expect(serverCreator.__server.listen).toHaveBeenCalledWith(port);
+      expect(serverCreator).toHaveBeenCalledWith(expect.any(Function), {
+        port,
+        https: undefined
+      });
     });
 
     test("it should throw an error if the port is already in use", async () => {
-      serverCreator.__server.listen.mockImplementationOnce(() => {
+      serverCreator.mockImplementationOnce(() => {
         throw new Error("Port already in use");
       });
 
@@ -95,29 +91,14 @@ describe("unit: shamIt", () => {
     });
   });
 
-  describe("Building the sham", () => {
-    test("it should ask shamBuilder to build the sham", async () => {
-      await shamIt();
-
-      expect(shamBuilder).toHaveBeenCalled();
-    });
-
-    test("it should use the sham to handle all requests to the server", async () => {
-      await shamIt();
-
-      expect(serverCreator.__server.on).toHaveBeenCalledWith(
-        "request",
-        shamBuilder.__sham
-      );
-    });
-
-    test("it should pass the server and defaultReply to the shamBuilder", async () => {
+  describe("Using a default reply", () => {
+    test("it should pass the defaultReply to the shamBuilder", async () => {
       const defaultReply = { status: 404 };
 
       await shamIt({ defaultReply });
 
       expect(shamBuilder).toHaveBeenCalledWith(
-        serverCreator.__server,
+        expect.anything(),
         defaultReply,
         expect.anything()
       );
@@ -128,7 +109,10 @@ describe("unit: shamIt", () => {
     test("it should use http by default", async () => {
       await shamIt();
 
-      expect(serverCreator).toHaveBeenCalledWith(undefined);
+      expect(serverCreator).toHaveBeenCalledWith(expect.any(Function), {
+        https: undefined,
+        port: expect.any(Number)
+      });
     });
 
     test("it should use https if the https option is set", async () => {
@@ -138,7 +122,10 @@ describe("unit: shamIt", () => {
       };
       await shamIt({ https });
 
-      expect(serverCreator).toHaveBeenCalledWith(https);
+      expect(serverCreator).toHaveBeenCalledWith(expect.any(Function), {
+        https,
+        port: expect.any(Number)
+      });
     });
   });
 

@@ -1,5 +1,4 @@
-const { spawn } = require("child_process");
-
+const createTestServer = require("../test/createTestServer.js");
 const client = require("sham-it/client/shamClient");
 const fetch = require("node-fetch");
 
@@ -8,25 +7,7 @@ describe("integration: remote client", () => {
   let isRunning;
 
   beforeAll(async () => {
-    const message = await new Promise(resolve => {
-      let firstMessage;
-      const server = spawn("node", ["start-server.js"]);
-      server.stdout.on("data", data => {
-        if (!firstMessage) {
-          firstMessage = true;
-          resolve(data.toString());
-        }
-      });
-      server.on("close", () => {
-        isRunning = false;
-      });
-      server.on("exit", () => {
-        isRunning = false;
-      });
-      isRunning = true;
-    });
-
-    const port = message.substr(message.lastIndexOf(":") + 1).trim();
+    const port = await createTestServer();
     sham = client({ port });
   });
   afterEach(async () => {
@@ -82,19 +63,17 @@ describe("integration: remote client", () => {
     describe("Using complex matchers", () => {
       beforeEach(async () => {
         await sham.addMatcher({
-          when: (
-            {
-              and,
-              or,
-              not,
-              equals,
-              greaterThan,
-              greaterThanOrEquals,
-              lessThan,
-              lessThanOrEquals,
-              regex
-            }
-          ) =>
+          when: ({
+            and,
+            or,
+            not,
+            equals,
+            greaterThan,
+            greaterThanOrEquals,
+            lessThan,
+            lessThanOrEquals,
+            regex
+          }) =>
             or(
               and(equals("method", "PUT"), regex("pathname", /(\/sham){3,5}$/)),
               and(
@@ -433,7 +412,8 @@ describe("integration: remote client", () => {
 
         expect(
           await sham.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).toBe(true);
       });
 
@@ -442,7 +422,8 @@ describe("integration: remote client", () => {
 
         await expect(
           sham.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).rejects.toBeDefined();
       });
     });
@@ -454,7 +435,8 @@ describe("integration: remote client", () => {
 
         await expect(
           sham.not.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).rejects.toBeDefined();
       });
 
@@ -463,7 +445,8 @@ describe("integration: remote client", () => {
 
         expect(
           await sham.not.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).toBe(true);
       });
     });
@@ -474,7 +457,8 @@ describe("integration: remote client", () => {
 
         expect(
           await sham.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).toBe(true);
       });
 
@@ -484,7 +468,8 @@ describe("integration: remote client", () => {
 
         await expect(
           sham.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).rejects.toBeDefined();
       });
     });
@@ -495,7 +480,8 @@ describe("integration: remote client", () => {
 
         await expect(
           sham.not.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).rejects.toBeDefined();
       });
 
@@ -505,7 +491,8 @@ describe("integration: remote client", () => {
 
         expect(
           await sham.not.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).toBe(true);
       });
     });

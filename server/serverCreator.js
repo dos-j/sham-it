@@ -2,9 +2,9 @@ const http = require("http");
 const https = require("https");
 const fs = require("fs");
 
-module.exports = function serverCreator(httpsOptions) {
-  if (httpsOptions) {
-    const parsedOptions = Object.assign({}, httpsOptions);
+module.exports = async function serverCreator(builder, opts = {}) {
+  if (opts.https) {
+    const parsedOptions = Object.assign({}, opts.https);
 
     const fileProps = [["pfx", ".pfx"], ["cert", ".pem"], ["key", ".pem"]];
     fileProps.forEach(([prop, suffix]) => {
@@ -18,5 +18,17 @@ module.exports = function serverCreator(httpsOptions) {
 
     return new https.Server(parsedOptions);
   }
-  return new http.Server();
+  const server = new http.Server();
+
+  server.on("request", builder(server));
+
+  const promise = new Promise(resolve => {
+    server.on("listening", resolve);
+  });
+
+  server.listen(opts.port);
+
+  await promise;
+
+  return server;
 };

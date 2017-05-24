@@ -1,5 +1,4 @@
-const { spawn } = require("child_process");
-
+const createTestServer = require("../test/createTestServer.js");
 const fetch = require("node-fetch");
 
 describe("integration: api", () => {
@@ -7,25 +6,8 @@ describe("integration: api", () => {
   let isRunning;
 
   beforeAll(async () => {
-    const message = await new Promise(resolve => {
-      let firstMessage;
-      const server = spawn("node", ["start-server.js"]);
-      server.stdout.on("data", data => {
-        if (!firstMessage) {
-          firstMessage = true;
-          resolve(data.toString());
-        }
-      });
-      server.on("close", () => {
-        isRunning = false;
-      });
-      server.on("exit", () => {
-        isRunning = false;
-      });
-      isRunning = true;
-    });
-
-    uri = message.substr(message.lastIndexOf("http://localhost")).trim();
+    const port = await createTestServer();
+    uri = `http://localhost:${port}`;
   });
   afterEach(async () => {
     await fetch(`${uri}/$reset`, { method: "POST" });

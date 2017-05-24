@@ -1,11 +1,12 @@
 const shamIt = require("sham-it");
 const fetch = require("node-fetch");
+const testLogger = require("../test/logger");
 
 describe("integration: client", () => {
   let sham;
 
   beforeAll(async () => {
-    sham = await shamIt();
+    sham = await shamIt({ logger: testLogger });
   });
   afterEach(async () => {
     await sham.reset();
@@ -81,19 +82,17 @@ describe("integration: client", () => {
     describe("Using complex matchers", () => {
       beforeEach(async () => {
         await sham.addMatcher({
-          when: (
-            {
-              and,
-              or,
-              not,
-              equals,
-              greaterThan,
-              greaterThanOrEquals,
-              lessThan,
-              lessThanOrEquals,
-              regex
-            }
-          ) =>
+          when: ({
+            and,
+            or,
+            not,
+            equals,
+            greaterThan,
+            greaterThanOrEquals,
+            lessThan,
+            lessThanOrEquals,
+            regex
+          }) =>
             or(
               and(equals("method", "PUT"), regex("pathname", /(\/sham){3,5}$/)),
               and(
@@ -432,7 +431,8 @@ describe("integration: client", () => {
 
         expect(
           await sham.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).toBe(true);
       });
 
@@ -441,7 +441,8 @@ describe("integration: client", () => {
 
         await expect(
           sham.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).rejects.toBeDefined();
       });
     });
@@ -453,7 +454,8 @@ describe("integration: client", () => {
 
         await expect(
           sham.not.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).rejects.toBeDefined();
       });
 
@@ -462,7 +464,8 @@ describe("integration: client", () => {
 
         expect(
           await sham.not.hasBeenCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test2")))
+            and(equals("method", "GET"), equals("pathname", "/test2"))
+          )
         ).toBe(true);
       });
     });
@@ -473,7 +476,8 @@ describe("integration: client", () => {
 
         expect(
           await sham.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).toBe(true);
       });
 
@@ -483,7 +487,8 @@ describe("integration: client", () => {
 
         await expect(
           sham.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).rejects.toBeDefined();
       });
     });
@@ -494,7 +499,8 @@ describe("integration: client", () => {
 
         await expect(
           sham.not.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).rejects.toBeDefined();
       });
 
@@ -504,7 +510,8 @@ describe("integration: client", () => {
 
         expect(
           await sham.not.hasBeenLastCalledWith(({ and, equals }) =>
-            and(equals("method", "GET"), equals("pathname", "/test")))
+            and(equals("method", "GET"), equals("pathname", "/test"))
+          )
         ).toBe(true);
       });
     });
