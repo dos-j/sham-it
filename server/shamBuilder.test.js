@@ -40,6 +40,7 @@ describe("unit: shamBuilder", () => {
   let sham;
   let server;
   let defaultReply;
+  let logger;
   beforeEach(() => {
     reply.mockClear();
     requestParser.mockClear();
@@ -56,7 +57,9 @@ describe("unit: shamBuilder", () => {
       body: "Not Found"
     };
 
-    sham = shamBuilder(server, defaultReply);
+    logger = { error: jest.fn() };
+
+    sham = shamBuilder(server, defaultReply, logger);
   });
 
   describe("Constructing the sham", () => {
@@ -96,13 +99,22 @@ describe("unit: shamBuilder", () => {
     });
 
     describe("Error handling", () => {
-      test("it should reply with an Internal Server Error if one of the routes throws an error", async () => {
+      let error;
+
+      beforeEach(async () => {
+        error = new Error("test");
         createRouteStore.__routeStore[1].mockImplementationOnce(() => {
-          throw new Error("test");
+          throw error;
         });
 
         await sham(req, res);
+      });
 
+      test("it should log the error", () => {
+        expect(logger.error).toHaveBeenCalledWith(error);
+      });
+
+      test("it should reply with an Internal Server Error if one of the routes throws an error", async () => {
         expect(reply).toHaveBeenCalledWith(res, {
           status: 500,
           body: "Internal Server Error"

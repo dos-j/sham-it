@@ -43,6 +43,14 @@ jest.mock("./server/serverCreator", () => {
 });
 const serverCreator = require("./server/serverCreator");
 
+jest.mock("pino", () => {
+  const pino = jest.fn(() => pino.__instance);
+  pino.__instance = { info() {}, error() {} };
+
+  return pino;
+});
+const pino = require("pino");
+
 describe("unit: shamIt", () => {
   beforeEach(() => {
     serverCreator.mockClear();
@@ -51,6 +59,7 @@ describe("unit: shamIt", () => {
     serverCreator.__server.on.mockClear();
     shamClient.mockClear();
     shamBuilder.mockClear();
+    pino.mockClear();
   });
 
   describe("Creating a Service", () => {
@@ -109,7 +118,8 @@ describe("unit: shamIt", () => {
 
       expect(shamBuilder).toHaveBeenCalledWith(
         serverCreator.__server,
-        defaultReply
+        defaultReply,
+        expect.anything()
       );
     });
   });
@@ -156,6 +166,31 @@ describe("unit: shamIt", () => {
       const sham = await shamIt();
 
       expect(sham).toBe(shamClient.__client);
+    });
+  });
+
+  describe("Using a logger", () => {
+    test("it should use the pino logger if one is not provided", async () => {
+      await shamIt();
+
+      expect(pino).toHaveBeenCalled();
+      expect(shamBuilder).toHaveBeenCalledWith(
+        expect.anything(),
+        undefined,
+        pino.__instance
+      );
+    });
+
+    test("it should not use the pino logger if one is provided", async () => {
+      const logger = { info() {} };
+      await shamIt({ logger });
+
+      expect(pino).not.toHaveBeenCalled();
+      expect(shamBuilder).toHaveBeenCalledWith(
+        expect.anything(),
+        undefined,
+        logger
+      );
     });
   });
 });

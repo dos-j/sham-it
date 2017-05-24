@@ -3,7 +3,7 @@ const parse = require("./requestParser");
 const createRouteStore = require("./createRouteStore");
 const serializeError = require("serialize-error");
 
-module.exports = function shamBuilder(server, defaultReply) {
+module.exports = function shamBuilder(server, defaultReply, logger) {
   const matcherStore = [];
   const requestStore = [];
   const routeStore = createRouteStore(
@@ -23,7 +23,7 @@ module.exports = function shamBuilder(server, defaultReply) {
         routeStore.reduce((prev, route) => prev || route(request), undefined)
       );
     } catch (error) {
-      console.error(error);
+      logger.error(error);
       const response = {
         status: 500,
         body: "Internal Server Error"
