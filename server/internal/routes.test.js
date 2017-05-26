@@ -9,19 +9,13 @@ jest.mock("./expectations/routes", () => {
 const registerExpectations = require("./expectations/routes");
 
 jest.mock("./healthcheck", () => () => "healthcheck");
-jest.mock("../shamCore", () => {
-  const shamCore = {
-    getAllRequestsHandler: jest.fn(() => "getAllRequestsHandler"),
-    getAllMatchersHandler: jest.fn(() => "getAllMatchersHandler"),
-    getSingleMatcherHandler: jest.fn(() => "getSingleMatcherHandler"),
-    createMatcherHandler: jest.fn(() => "createMatcherHandler"),
-    deleteMatcherHandler: jest.fn(() => "deleteMatcherHandler"),
-    resetHandler: jest.fn(() => "resetHandler"),
-    shutdownHandler: jest.fn(() => "shutdownHandler")
-  };
-  return shamCore;
-});
-const shamCore = require("../shamCore");
+jest.mock("./getAllRequests", () => () => "getAllRequests");
+jest.mock("./getAllMatchers", () => () => "getAllMatchers");
+jest.mock("./getSingleMatcher", () => () => "getSingleMatcher");
+jest.mock("./createMatcher", () => () => "createMatcher");
+jest.mock("./deleteMatcher", () => () => "deleteMatcher");
+jest.mock("./reset", () => () => "reset");
+jest.mock("./shutdown", () => () => "shutdown");
 
 describe("unit: internal/routes", () => {
   let routes;
@@ -36,8 +30,6 @@ describe("unit: internal/routes", () => {
       requestStore: [],
       server: { shutdown() {} }
     };
-
-    Object.entries(shamCore).forEach(([, func]) => func.mockClear());
 
     routes = registerRoutes(utils);
   });
