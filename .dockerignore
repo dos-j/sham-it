@@ -1,0 +1,11 @@
+**/*.test.js
+node_modules
+Dockerfile
+LICENSE
+README.md
+_config.yml
+coverage
+examples
+test
+integration
+test-report.xml
