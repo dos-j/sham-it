@@ -12,7 +12,7 @@ module.exports = async function shamIt(
   );
 
   port = server.address().port;
-  logger.info(`Sham-It is listeneding to requests on port ${port}`, {
+  logger.info(`Sham-It is listening to requests on port ${port}`, {
     port,
     https: !!https
   });
