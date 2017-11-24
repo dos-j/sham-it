@@ -118,4 +118,16 @@ describe("unit: requestParser", () => {
 
     expect(result).toHaveProperty("query", { a: "1", b: "2" });
   });
+
+  test("it should decode the URI", async () => {
+    request.url = "http://localhost:8090/%24matchers";
+
+    const promise = requestParser(request);
+
+    request.emit("end");
+
+    const result = await promise;
+
+    expect(result).toHaveProperty("pathname", "/$matchers");
+  });
 });
