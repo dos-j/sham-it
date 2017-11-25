@@ -51,9 +51,11 @@ jobs:
 
       # build and push Docker image
       - run: |
-          set -e
+          set -ex
           VERSION=$(git tag --points-at HEAD | grep v | sed 's/v//')
           docker build -t chunkysamurai/sham-it:$VERSION -t chunkysamurai/sham-it:latest .      # (4)
+          set +x
           docker login -u $DOCKER_USER -p $DOCKER_PASS         # (5)
+          set -x
           docker push chunkysamurai/sham-it:$VERSION
           docker push chunkysamurai/sham-it:latest
