@@ -44,8 +44,7 @@ jobs:
           name: Install Docker client
           command: |
             set -x
-            apk update
-            apk add docker
+            curl -sSL https://get.docker.com/ | sh
 
       # build and push Docker image
       - run: |
