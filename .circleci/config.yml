@@ -52,7 +52,13 @@ jobs:
       # build and push Docker image
       - run: |
           set -ex
-          VERSION=$(git tag --points-at HEAD | grep v | sed 's/v//')
+          VERSION=$(git tag | tail -n 1 | grep v | sed 's/v//')
+
+          if ! curl --silent -f -lSL https://index.docker.io/v1/repositories/chunkysamurai/sham-it/tags/$VERSION > /dev/null; then
+            echo "The image already exists in the registry"
+            exit 0
+          fi
+
           docker build -t chunkysamurai/sham-it:$VERSION -t chunkysamurai/sham-it:latest .      # (4)
           set +x
           docker login -u $DOCKER_USER -p $DOCKER_PASS         # (5)
