@@ -51,6 +51,9 @@ jobs:
       # build and push Docker image
       - run: |
           set -ex
+
+          docker -v
+
           VERSION=$(git tag | tail -n 1 | grep v | sed 's/v//')
 
           if curl --silent -f -lSL https://index.docker.io/v1/repositories/chunkysamurai/sham-it/tags/$VERSION > /dev/null; then
