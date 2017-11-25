@@ -45,7 +45,7 @@ jobs:
           command: |
             set -x
             apt-get update
-            apt-get install dialog apt-utils
+            apt-get install dialog apt-utils -y
             curl -sSL https://get.docker.com/ | sh
 
       # build and push Docker image
