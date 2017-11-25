@@ -44,6 +44,7 @@ jobs:
           name: Install Docker client
           command: |
             set -x
+            apt-get install dialog apt-utils
             curl -sSL https://get.docker.com/ | sh
 
       # build and push Docker image
