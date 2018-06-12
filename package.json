@@ -22,7 +22,7 @@
   "homepage": "https://github.com/dos-j/sham-it#readme",
   "dependencies": {
     "indent-string": "^3.1.0",
-    "jest": "^20.0.0",
+    "jest": "^21.0.0",
     "ms": "^2.0.0",
     "node-fetch": "^1.6.3",
     "pino": "^4.5.2",
